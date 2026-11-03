@@ -8,6 +8,7 @@ import 'package:gif_loop/core/widgets/error_view.dart';
 import 'package:gif_loop/features/details/cubit/gif_details_cubit.dart';
 import 'package:gif_loop/features/details/cubit/gif_details_state.dart';
 import 'package:gif_loop/features/details/widgets/dominant_color_background.dart';
+import 'package:gif_loop/features/details/widgets/favorite_button.dart';
 import 'package:gif_loop/features/details/widgets/gif_details_view.dart';
 
 class GifDetailsPage extends StatelessWidget {
@@ -27,6 +28,7 @@ class GifDetailsPage extends StatelessWidget {
             backgroundColor: Colors.transparent,
             scrolledUnderElevation: 0,
             leading: BackButton(onPressed: context.read<AppCoordinator>().back),
+            actions: [if (state.gif case final gif?) FavoriteButton(gif: gif)],
           ),
           body: SafeArea(
             top: false,

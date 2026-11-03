@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui' as ui;
 
@@ -11,9 +12,11 @@ class DominantColorExtractor {
 
   final BaseCacheManager _cacheManager;
 
-  Future<ui.Color?> extract(String imageUrl) async {
+  Future<ui.Color?> extract(String imageUrl, {File? localFile}) async {
     try {
-      final file = await _cacheManager.getSingleFile(imageUrl);
+      final file = localFile != null && localFile.existsSync()
+          ? localFile
+          : await _cacheManager.getSingleFile(imageUrl);
       final codec = await ui.instantiateImageCodec(
         await file.readAsBytes(),
         targetWidth: _sampleWidth,

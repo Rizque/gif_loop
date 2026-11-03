@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,8 @@ import 'package:gif_loop/core/widgets/giphy_attribution.dart';
 import 'package:gif_loop/features/details/widgets/gif_actions.dart';
 import 'package:gif_loop/features/details/widgets/gif_info_section.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
+import 'package:gif_loop/features/library/domain/favorite_gif.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
 import 'package:gif_loop/features/studio/widgets/gif_studio_controls.dart';
@@ -44,7 +47,12 @@ class _GifDetailsViewState extends State<GifDetailsView>
     super.dispose();
   }
 
-  void _loadFrames() => unawaited(_controller.load(widget.gif.full.url));
+  void _loadFrames() => unawaited(
+    _controller.load(url: widget.gif.full.url, file: _favorite?.fullFile),
+  );
+
+  FavoriteGif? get _favorite =>
+      context.read<FavoritesCubit>().state.favoriteOf(widget.gif.id);
 
   void _retryAfterReconnect() {
     if (_controller.status == StudioStatus.failure &&
@@ -55,7 +63,13 @@ class _GifDetailsViewState extends State<GifDetailsView>
 
   @override
   Widget build(BuildContext context) {
-    final player = GifStudioPlayer(gif: widget.gif, controller: _controller);
+    final player = GifStudioPlayer(
+      gif: widget.gif,
+      controller: _controller,
+      previewFile: context.select<FavoritesCubit, File?>(
+        (cubit) => cubit.state.favoriteOf(widget.gif.id)?.previewFile,
+      ),
+    );
     final details = _DetailsColumn(
       gif: widget.gif,
       controls: GifStudioControls(

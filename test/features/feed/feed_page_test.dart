@@ -13,7 +13,7 @@ import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/bloc/feed_state.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
 import 'package:gif_loop/features/feed/widgets/feed_skeleton.dart';
-import 'package:gif_loop/features/feed/widgets/gif_tile.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_tile.dart';
 import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
 import 'package:gif_loop/features/search/cubit/suggestions_cubit.dart';
 import 'package:gif_loop/features/search/cubit/trending_searches_cubit.dart';

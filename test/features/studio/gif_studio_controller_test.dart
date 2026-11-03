@@ -32,7 +32,8 @@ void main() {
   void stubLoad(Result<List<GifFrame>> result) {
     when(
       () => loader.load(
-        any(),
+        url: any(named: 'url'),
+        file: any(named: 'file'),
         cancellation: any(named: 'cancellation'),
         onProgress: any(named: 'onProgress'),
       ),
@@ -48,7 +49,7 @@ void main() {
   }) async {
     stubLoad(Success(await decodeFrames(tester, frames)));
     final controller = GifStudioController(vsync: tester, loader: loader);
-    await controller.load('https://media.giphy.com/media/abc/giphy.gif');
+    await controller.load(url: 'https://media.giphy.com/media/abc/giphy.gif');
     return controller;
   }
 
@@ -124,7 +125,7 @@ void main() {
     stubLoad(const Err(NoConnectionFailure()));
     final controller = GifStudioController(vsync: tester, loader: loader);
 
-    await controller.load('https://media.giphy.com/media/abc/giphy.gif');
+    await controller.load(url: 'https://media.giphy.com/media/abc/giphy.gif');
 
     expect(controller.status, StudioStatus.failure);
     expect(controller.failure, const NoConnectionFailure());
@@ -159,7 +160,7 @@ void main() {
     final frames = await decodeFrames(tester, 2);
     stubLoad(Success(frames));
     final controller = GifStudioController(vsync: tester, loader: loader);
-    await controller.load('https://media.giphy.com/media/abc/giphy.gif');
+    await controller.load(url: 'https://media.giphy.com/media/abc/giphy.gif');
 
     controller.dispose();
 
@@ -176,14 +177,17 @@ void main() {
     final images = <ui.Image>[for (final frame in frames) frame.image];
     when(
       () => loader.load(
-        any(),
+        url: any(named: 'url'),
+        file: any(named: 'file'),
         cancellation: any(named: 'cancellation'),
         onProgress: any(named: 'onProgress'),
       ),
     ).thenAnswer((_) async => Success(frames));
     final controller = GifStudioController(vsync: tester, loader: loader);
 
-    final loading = controller.load('https://media.giphy.com/media/a/g.gif');
+    final loading = controller.load(
+      url: 'https://media.giphy.com/media/a/g.gif',
+    );
     controller.dispose();
     await loading;
 

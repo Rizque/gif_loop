@@ -25,6 +25,7 @@ Failure mapStatusCode(int? statusCode) => switch (statusCode) {
 
 Failure mapMediaError(Object error) => switch (error) {
   HttpExceptionWithStatus(:final statusCode) => mapStatusCode(statusCode),
+  FileSystemException() => const StorageFailure(),
   SocketException() || HttpException() => const NoConnectionFailure(),
   _ => const DecodingFailure(),
 };

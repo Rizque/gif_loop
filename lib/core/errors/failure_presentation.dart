@@ -12,6 +12,7 @@ extension FailurePresentation on Failure {
     ServerFailure() => Strings.serverTitle,
     ParsingFailure() => Strings.parsingTitle,
     DecodingFailure() => Strings.decodingTitle,
+    StorageFailure() => Strings.storageTitle,
     UnknownFailure() => Strings.unknownTitle,
   };
 
@@ -24,6 +25,7 @@ extension FailurePresentation on Failure {
     ServerFailure() => Strings.serverMessage,
     ParsingFailure() => Strings.parsingMessage,
     DecodingFailure() => Strings.decodingMessage,
+    StorageFailure() => Strings.storageMessage,
     UnknownFailure() => Strings.unknownMessage,
   };
 
@@ -36,6 +38,7 @@ extension FailurePresentation on Failure {
     ServerFailure() => Icons.cloud_off_rounded,
     ParsingFailure() => Icons.data_object_rounded,
     DecodingFailure() => Icons.broken_image_rounded,
+    StorageFailure() => Icons.sd_card_alert_rounded,
     UnknownFailure() => Icons.error_outline_rounded,
   };
 }

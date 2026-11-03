@@ -52,6 +52,10 @@ final class DecodingFailure extends Failure {
   const new();
 }
 
+final class StorageFailure extends Failure {
+  const new();
+}
+
 final class UnknownFailure extends Failure {
   const new();
 }

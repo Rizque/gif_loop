@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -16,14 +17,20 @@ class GifFrameLoader {
 
   final BaseCacheManager _cacheManager;
 
-  Future<Result<List<GifFrame>>> load(
-    String url, {
+  // A local file (favorite or remix) wins over the network so playback
+  // works offline; the url is the fallback if the file is missing.
+  Future<Result<List<GifFrame>>> load({
     required CancellationToken cancellation,
     required ValueChanged<double> onProgress,
+    String? url,
+    File? file,
   }) async {
     final Uint8List bytes;
     try {
-      bytes = await (await _cacheManager.getSingleFile(url)).readAsBytes();
+      final source = file != null && file.existsSync()
+          ? file
+          : await _cacheManager.getSingleFile(url ?? '');
+      bytes = await source.readAsBytes();
     } on Exception catch (error) {
       return Err(mapMediaError(error));
     }

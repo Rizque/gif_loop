@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/scheduler.dart';
@@ -55,7 +56,7 @@ class GifStudioController extends ChangeNotifier {
 
   ui.Image get currentImage => _frames[frameIndex.value].image;
 
-  Future<void> load(String url) async {
+  Future<void> load({String? url, File? file}) async {
     _loading?.cancel();
     final loading = _loading = CancellationToken();
     _pauseTicker();
@@ -66,7 +67,8 @@ class GifStudioController extends ChangeNotifier {
     notifyListeners();
 
     final result = await _loader.load(
-      url,
+      url: url,
+      file: file,
       cancellation: loading,
       onProgress: (progress) {
         if (loading.isCancelled) return;

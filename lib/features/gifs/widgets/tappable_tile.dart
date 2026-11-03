@@ -1,40 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
-import 'package:gif_loop/features/gifs/domain/gif.dart';
-import 'package:gif_loop/features/gifs/widgets/gif_hero_tag.dart';
-import 'package:gif_loop/features/gifs/widgets/gif_network_image.dart';
 
-class GifTile extends StatelessWidget {
+class TappableTile extends StatelessWidget {
   const new({
-    required this.gif,
-    required this.placeholderColor,
+    required this.aspectRatio,
+    required this.semanticLabel,
+    required this.heroTag,
     required this.onTap,
+    required this.child,
     super.key,
   });
 
-  final Gif gif;
-  final Color placeholderColor;
+  final double aspectRatio;
+  final String semanticLabel;
+  final Object heroTag;
   final VoidCallback onTap;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: gif.title,
+    label: semanticLabel,
     button: true,
     excludeSemantics: true,
     child: AspectRatio(
-      aspectRatio: gif.preview.aspectRatio,
+      aspectRatio: aspectRatio,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Radii.tile),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Hero(
-              tag: gifHeroTag(gif.id),
-              child: GifNetworkImage(
-                rendition: gif.preview,
-                placeholderColor: placeholderColor,
-              ),
-            ),
+            Hero(tag: heroTag, child: child),
             Material(
               type: MaterialType.transparency,
               child: InkWell(onTap: onTap),

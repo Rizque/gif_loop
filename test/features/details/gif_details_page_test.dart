@@ -11,6 +11,7 @@ import 'package:gif_loop/features/details/cubit/gif_details_cubit.dart';
 import 'package:gif_loop/features/details/cubit/gif_details_state.dart';
 import 'package:gif_loop/features/details/gif_details_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,6 +27,8 @@ void main() {
   late _MockGifDetailsCubit cubit;
   late MockGifFrameLoader frameLoader;
   late MockAppCoordinator coordinator;
+  late MockLibraryRepository library;
+  late FavoritesCubit favorites;
 
   final gif = makeGif('abc', title: 'Dancing cat');
 
@@ -36,12 +39,15 @@ void main() {
     frameLoader = MockGifFrameLoader();
     coordinator = MockAppCoordinator();
     when(cubit.load).thenAnswer((_) async {});
+    library = MockLibraryRepository();
+    favorites = FavoritesCubit(library);
   });
 
   void stubFrames(Result<List<GifFrame>> result) =>
       when(
         () => frameLoader.load(
-          any(),
+          url: any(named: 'url'),
+          file: any(named: 'file'),
           cancellation: any(named: 'cancellation'),
           onProgress: any(named: 'onProgress'),
         ),
@@ -67,8 +73,11 @@ void main() {
   }) async {
     when(() => cubit.state).thenReturn(state);
     await tester.pumpApp(
-      BlocProvider<GifDetailsCubit>.value(
-        value: cubit,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<GifDetailsCubit>.value(value: cubit),
+          BlocProvider<FavoritesCubit>.value(value: favorites),
+        ],
         child: const GifDetailsPage(),
       ),
       coordinator: coordinator,
@@ -145,7 +154,8 @@ void main() {
     await tester.pump();
     verify(
       () => frameLoader.load(
-        gif.full.url,
+        url: gif.full.url,
+        file: any(named: 'file'),
         cancellation: any(named: 'cancellation'),
         onProgress: any(named: 'onProgress'),
       ),

@@ -35,6 +35,13 @@ abstract final class Strings {
   static const String noFavoritesMessage =
       'Tap the heart on any GIF to keep it here, even offline.';
   static const String exploreGifs = 'Explore GIFs';
+  static const String favorites = 'Favorites';
+  static const String myRemixes = 'My remixes';
+  static const String noRemixesTitle = 'No remixes yet';
+  static const String noRemixesMessage = 'Open any GIF and tap Remix.';
+  static const String addFavorite = 'Add to favorites';
+  static const String removeFavorite = 'Remove from favorites';
+  static const String favoriteFailed = "Couldn't save the favorite.";
 
   static const String copyLink = 'Copy link';
   static const String share = 'Share';
@@ -83,6 +90,9 @@ abstract final class Strings {
   static const String parsingMessage = "GIPHY's response couldn't be read.";
   static const String decodingTitle = "Can't play this GIF";
   static const String decodingMessage = "The GIF's frames couldn't be decoded.";
+  static const String storageTitle = "Couldn't save the file";
+  static const String storageMessage =
+      'Check that your device has enough free space.';
   static const String unknownTitle = 'Something went wrong';
   static const String unknownMessage = 'Please try again.';
 }

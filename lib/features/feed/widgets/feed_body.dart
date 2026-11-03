@@ -12,8 +12,8 @@ import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/bloc/feed_state.dart';
 import 'package:gif_loop/features/feed/widgets/feed_footer.dart';
 import 'package:gif_loop/features/feed/widgets/feed_skeleton.dart';
-import 'package:gif_loop/features/feed/widgets/gif_masonry_grid.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_masonry_grid.dart';
 import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
 
 class FeedBody extends StatelessWidget {

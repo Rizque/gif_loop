@@ -1,17 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
 import 'package:gif_loop/core/theme/tile_palette.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/gifs/widgets/gif_hero_tag.dart';
-import 'package:gif_loop/features/gifs/widgets/gif_network_image.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_image.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
 
 class GifStudioPlayer extends StatelessWidget {
-  const new({required this.gif, required this.controller, super.key});
+  const new({
+    required this.gif,
+    required this.controller,
+    super.key,
+    this.previewFile,
+  });
 
   final Gif gif;
   final GifStudioController controller;
+  final File? previewFile;
 
   @override
   Widget build(BuildContext context) => AspectRatio(
@@ -39,9 +47,10 @@ class GifStudioPlayer extends StatelessWidget {
                           key: const ValueKey('frames'),
                           controller: controller,
                         )
-                      : GifNetworkImage(
+                      : GifImage(
                           key: const ValueKey('preview'),
                           rendition: gif.preview,
+                          file: previewFile,
                           placeholderColor: TilePalette.colorAt(0),
                           fit: BoxFit.contain,
                         ),
