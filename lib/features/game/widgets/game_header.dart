@@ -60,10 +60,13 @@ class _StatChip extends StatelessWidget {
           spacing: Spacing.xs,
           children: [
             Icon(icon, size: _iconSize, color: colors.onSecondaryContainer),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge
-                  ?.copyWith(color: colors.onSecondaryContainer),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: colors.onSecondaryContainer),
+              ),
             ),
           ],
         ),
