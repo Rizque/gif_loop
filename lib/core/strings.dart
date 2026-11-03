@@ -4,7 +4,7 @@ abstract final class Strings {
   static const String retry = 'Retry';
 
   static const String exploreTab = 'Explore';
-  static const String gameTab = 'Game';
+  static const String libraryTab = 'Library';
 
   static const String missingApiKeyTitle = 'Missing API key';
   static const String missingApiKeyMessage =
@@ -26,6 +26,11 @@ abstract final class Strings {
   static const String loadMoreFailed = "Couldn't load more GIFs.";
   static const String refreshFailed = "Couldn't refresh the feed.";
   static const String untitled = 'Untitled';
+
+  static const String noFavoritesTitle = 'No favorites yet';
+  static const String noFavoritesMessage =
+      'Tap the heart on any GIF to keep it here, even offline.';
+  static const String exploreGifs = 'Explore GIFs';
 
   static const String copyLink = 'Copy link';
   static const String share = 'Share';
@@ -53,21 +58,6 @@ abstract final class Strings {
   static const String downloadingGif = 'Downloading GIF…';
   static String decodingFrames(int percent) => 'Decoding frames… $percent%';
   static String frameCounter(int current, int total) => '$current / $total';
-
-  static const String gameTitle = 'Guess the GIF';
-  static const String mysteryGif = 'Mystery GIF';
-  static const String gameQuestion = 'Which search term found this GIF?';
-  static String round(int current, int total) => 'Round $current / $total';
-  static String score(int value) => 'Score $value';
-  static String streak(int value) => 'Streak $value';
-  static const String next = 'Next';
-  static const String seeResults = 'See results';
-  static const String gameOver = 'Game over';
-  static String finalScore(int score, int total) => '$score / $total';
-  static String bestScore(int value) => 'Best: $value';
-  static const String newBestScore = 'New best score!';
-  static const String playAgain = 'Play again';
-  static const String tapGifForDetails = 'Tap the GIF to see its details';
 
   static const String noConnectionTitle = 'No connection';
   static const String noConnectionMessage =

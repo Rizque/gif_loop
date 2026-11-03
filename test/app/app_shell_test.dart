@@ -22,7 +22,7 @@ void main() {
       ),
       screen: screen,
     );
-    await tester.tap(find.text(Strings.gameTab));
+    await tester.tap(find.text(Strings.libraryTab));
     return selected;
   }
 
@@ -30,7 +30,7 @@ void main() {
     final selected = await pumpShell(tester);
 
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(selected, AppTab.game);
+    expect(selected, AppTab.library);
   });
 
   testWidgets(
@@ -40,7 +40,7 @@ void main() {
       final selected = await pumpShell(tester);
 
       expect(find.byType(CupertinoTabBar), findsOneWidget);
-      expect(selected, AppTab.game);
+      expect(selected, AppTab.library);
     },
   );
 
@@ -48,6 +48,6 @@ void main() {
     final selected = await pumpShell(tester, screen: TestScreen.phoneLandscape);
 
     expect(find.byType(NavigationRail), findsOneWidget);
-    expect(selected, AppTab.game);
+    expect(selected, AppTab.library);
   });
 }

@@ -13,9 +13,8 @@ import 'package:gif_loop/features/details/gif_details_page.dart';
 import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
-import 'package:gif_loop/features/game/cubit/game_cubit.dart';
-import 'package:gif_loop/features/game/game_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/library/library_page.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouterCoordinator implements AppCoordinator {
@@ -54,11 +53,8 @@ class GoRouterCoordinator implements AppCoordinator {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: Routes.game,
-                builder: (context, state) => BlocProvider(
-                  create: (_) => _createGameCubit(),
-                  child: const GamePage(),
-                ),
+                path: Routes.library,
+                builder: (context, state) => const LibraryPage(),
               ),
             ],
           ),
@@ -75,12 +71,6 @@ class GoRouterCoordinator implements AppCoordinator {
     ],
   );
 
-  GameCubit _createGameCubit() {
-    final cubit = _getIt<GameCubit>();
-    unawaited(cubit.start());
-    return cubit;
-  }
-
   GifDetailsCubit _createDetailsCubit(GoRouterState state) {
     final cubit = _getIt<GifDetailsCubit>(
       param1: state.pathParameters[Routes.gifIdParam] ?? '',
@@ -95,7 +85,7 @@ class GoRouterCoordinator implements AppCoordinator {
 
   void _showTab(AppTab tab) => switch (tab) {
     AppTab.explore => showFeed(),
-    AppTab.game => showGame(),
+    AppTab.library => showLibrary(),
   };
 
   @override
@@ -110,7 +100,7 @@ class GoRouterCoordinator implements AppCoordinator {
   void showFeed() => router.go(Routes.feed);
 
   @override
-  void showGame() => router.go(Routes.game);
+  void showLibrary() => router.go(Routes.library);
 
   @override
   void back() {

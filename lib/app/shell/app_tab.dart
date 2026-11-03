@@ -1,1 +1,1 @@
-enum AppTab { explore, game }
+enum AppTab { explore, library }

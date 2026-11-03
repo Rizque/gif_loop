@@ -5,9 +5,9 @@ abstract interface class AppCoordinator {
 
   void showGifDetailsById(String id);
 
-  void showGame();
-
   void showFeed();
+
+  void showLibrary();
 
   void back();
 }
