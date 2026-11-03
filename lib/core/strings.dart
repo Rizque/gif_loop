@@ -56,6 +56,7 @@ abstract final class Strings {
   static String frameCounter(int current, int total) => '$current / $total';
 
   static const String gameTitle = 'Guess the GIF';
+  static const String mysteryGif = 'Mystery GIF';
   static const String gameQuestion = 'Which search term found this GIF?';
   static String round(int current, int total) => 'Round $current / $total';
   static String score(int value) => 'Score $value';

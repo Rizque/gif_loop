@@ -13,6 +13,8 @@ import 'package:gif_loop/features/details/gif_details_page.dart';
 import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
+import 'package:gif_loop/features/game/cubit/game_cubit.dart';
+import 'package:gif_loop/features/game/game_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,6 +51,17 @@ class GoRouterCoordinator implements AppCoordinator {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.game,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => _createGameCubit(),
+                  child: const GamePage(),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -61,6 +74,12 @@ class GoRouterCoordinator implements AppCoordinator {
       ),
     ],
   );
+
+  GameCubit _createGameCubit() {
+    final cubit = _getIt<GameCubit>();
+    unawaited(cubit.start());
+    return cubit;
+  }
 
   GifDetailsCubit _createDetailsCubit(GoRouterState state) {
     final cubit = _getIt<GifDetailsCubit>(
