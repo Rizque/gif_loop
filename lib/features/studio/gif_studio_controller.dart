@@ -21,8 +21,6 @@ class GifStudioController extends ChangeNotifier {
     );
   }
 
-  static const List<double> speeds = [0.25, 0.5, 1, 2];
-
   final GifFrameLoader _loader;
   late final Ticker _ticker;
   late final AppLifecycleListener _lifecycleListener;

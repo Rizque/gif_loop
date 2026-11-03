@@ -8,6 +8,7 @@ import 'package:gif_loop/core/platform/adaptive_segmented_control.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
 import 'package:gif_loop/features/studio/engine/playback_engine.dart';
+import 'package:gif_loop/features/studio/engine/studio_settings.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
 
 class GifStudioControls extends StatelessWidget {
@@ -140,7 +141,7 @@ class _PlaybackControls extends StatelessWidget {
         _LabeledControl(
           label: Strings.speed,
           child: AdaptiveSegmentedControl<double>(
-            values: GifStudioController.speeds,
+            values: StudioSettings.speeds,
             selected: controller.speed,
             labelOf: Strings.speedLabel,
             onChanged: (speed) => controller.speed = speed,

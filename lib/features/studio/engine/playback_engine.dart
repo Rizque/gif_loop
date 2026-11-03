@@ -1,17 +1,11 @@
+import 'package:gif_loop/features/studio/engine/frame_timing.dart';
+
 enum LoopMode { forward, reverse, pingPong }
 
 class PlaybackEngine {
   new(List<Duration> frameDurations)
     : assert(frameDurations.isNotEmpty, 'A GIF has at least one frame'),
-      _durations = [
-        for (final duration in frameDurations)
-          if (duration < minFrameDuration) fallbackFrameDuration else duration,
-      ];
-
-  // Browsers play GIF frames shorter than 20 ms at 100 ms, and many GIFs
-  // are authored with that behaviour in mind.
-  static const Duration minFrameDuration = Duration(milliseconds: 20);
-  static const Duration fallbackFrameDuration = Duration(milliseconds: 100);
+      _durations = frameDurations.map(normalizeFrameDuration).toList();
 
   final List<Duration> _durations;
   int _index = 0;
