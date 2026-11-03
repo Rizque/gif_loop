@@ -17,6 +17,7 @@ abstract final class Strings {
   static const String searchHint = 'Search GIPHY';
   static const String clearSearch = 'Clear search';
   static const String trending = 'Trending';
+  static const String loadingGifs = 'Loading GIFs';
   static String resultsFor(String query) => 'Results for "$query"';
   static const String noResultsTitle = 'No GIFs found';
   static String noResultsFor(String query) => 'No GIFs found for "$query".';

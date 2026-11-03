@@ -1,0 +1,78 @@
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:gif_loop/app/router/app_coordinator.dart';
+import 'package:gif_loop/app/router/routes.dart';
+import 'package:gif_loop/app/shell/app_shell.dart';
+import 'package:gif_loop/app/shell/app_tab.dart';
+import 'package:gif_loop/app/shell/shell_branch_container.dart';
+import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
+import 'package:gif_loop/features/feed/bloc/feed_event.dart';
+import 'package:gif_loop/features/feed/feed_page.dart';
+import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:go_router/go_router.dart';
+
+class GoRouterCoordinator implements AppCoordinator {
+  new(this._getIt);
+
+  final GetIt _getIt;
+  final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey();
+
+  late final GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: Routes.feed,
+    routes: [
+      StatefulShellRoute(
+        builder: (context, state, navigationShell) => AppShell(
+          currentTab: AppTab.values[navigationShell.currentIndex],
+          onTabSelected: _showTab,
+          child: navigationShell,
+        ),
+        navigatorContainerBuilder: (context, navigationShell, children) =>
+            ShellBranchContainer(
+              currentIndex: navigationShell.currentIndex,
+              children: children,
+            ),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.feed,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => _getIt<FeedBloc>()..add(const FeedStarted()),
+                  child: const FeedPage(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+
+  void _showTab(AppTab tab) => switch (tab) {
+    AppTab.explore => showFeed(),
+    AppTab.game => showGame(),
+  };
+
+  @override
+  void showGifDetails(Gif gif) =>
+      unawaited(router.push(Routes.gifDetails(gif.id), extra: gif));
+
+  @override
+  void showGifDetailsById(String id) =>
+      unawaited(router.push(Routes.gifDetails(id)));
+
+  @override
+  void showFeed() => router.go(Routes.feed);
+
+  @override
+  void showGame() => router.go(Routes.game);
+
+  @override
+  void back() {
+    if (router.canPop()) router.pop();
+  }
+}
