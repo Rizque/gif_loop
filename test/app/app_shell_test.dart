@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gif_loop/app/shell/app_shell.dart';
 import 'package:gif_loop/app/shell/app_tab.dart';
 import 'package:gif_loop/core/strings.dart';
+import 'package:gif_loop/core/theme/app_theme.dart';
 
 import '../helpers/pump_app.dart';
 
@@ -106,6 +108,108 @@ void main() {
 
       expect(selectedTabs, [AppTab.library]);
     });
+  });
+
+  group('compact bottom bar', () {
+    const homeIndicator = 34.0;
+
+    void addHomeIndicator(WidgetTester tester) {
+      tester.view
+        ..padding = const FakeViewPadding(bottom: homeIndicator)
+        ..viewPadding = const FakeViewPadding(bottom: homeIndicator);
+      addTearDown(tester.view.resetPadding);
+      addTearDown(tester.view.resetViewPadding);
+    }
+
+    testWidgets('is 64 high with always visible labels and 22 px icons', (
+      tester,
+    ) async {
+      await pumpShell(tester);
+
+      expect(
+        tester.getSize(find.byType(NavigationBar)).height,
+        AppTheme.navigationBarHeight,
+      );
+      expect(find.text(Strings.exploreTab), findsOneWidget);
+      expect(find.text(Strings.libraryTab), findsOneWidget);
+      expect(
+        tester.getSize(find.byIcon(Icons.video_library_outlined)).height,
+        AppTheme.navigationBarIconSize,
+      );
+      final label = tester.renderObject<RenderParagraph>(
+        find.text(Strings.libraryTab),
+      );
+      final theme = Theme.of(tester.element(find.byType(NavigationBar)));
+      double? fontSize;
+      label.text.visitChildren((span) {
+        fontSize = span.style?.fontSize ?? fontSize;
+        return true;
+      });
+      expect(fontSize, theme.textTheme.labelSmall?.fontSize);
+    });
+
+    testWidgets('adds the home indicator inset below the bar', (tester) async {
+      addHomeIndicator(tester);
+
+      await pumpShell(tester);
+
+      expect(
+        tester.getSize(find.byType(NavigationBar)).height,
+        AppTheme.navigationBarHeight + homeIndicator,
+      );
+    });
+
+    testWidgets('content ends exactly at the bar: no overlap, no gap', (
+      tester,
+    ) async {
+      addHomeIndicator(tester);
+      await pumpShell(tester);
+
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position;
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pumpAndSettle();
+
+      final barTop = tester.getTopLeft(find.byType(NavigationBar)).dy;
+      expect(isBarVisible(tester), isTrue);
+      expect(tester.getBottomLeft(find.text('item 59')).dy, barTop);
+      expect(tester.getBottomLeft(find.byType(ListView)).dy, barTop);
+    });
+
+    testWidgets('keeps tap targets of at least 48 px', (tester) async {
+      await pumpShell(tester);
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    });
+
+    testWidgets('fits at 1.5x text scale', (tester) async {
+      await tester.pumpApp(
+        AppShell(
+          currentTab: AppTab.explore,
+          onTabSelected: (_) {},
+          child: const SizedBox.expand(),
+        ),
+        textScale: 1.5,
+      );
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+      'leaves the iOS tab bar at its default height',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        await pumpShell(tester);
+
+        // CupertinoTabBar's documented default height.
+        const cupertinoDefaultHeight = 50.0;
+        expect(
+          tester.getSize(find.byType(CupertinoTabBar)).height,
+          cupertinoDefaultHeight,
+        );
+      },
+    );
   });
 
   group('hide on scroll', () {
