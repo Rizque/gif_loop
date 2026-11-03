@@ -8,15 +8,15 @@ import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/core/network/cancellation_token.dart';
 import 'package:gif_loop/features/gifs/data/dto/gif_list_response_dto.dart';
 import 'package:gif_loop/features/gifs/data/giphy_api.dart';
-import 'package:gif_loop/features/gifs/domain/content_rating.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/gifs/domain/gif_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif_repository.dart';
 
 class GifRepositoryImpl implements GifRepository {
-  const new(this._api);
+  new(this._api);
 
   final GiphyApi _api;
+  List<String>? _trendingSearches;
 
   @override
   Future<Result<GifPage>> trending({
@@ -26,7 +26,7 @@ class GifRepositoryImpl implements GifRepository {
     final response = await _api.trending(
       offset: offset,
       limit: GiphyConfig.pageSize,
-      rating: ContentRating.pg.apiValue,
+      rating: GiphyConfig.rating,
       cancelToken: cancelToken,
     );
     return _toPage(response, offset, GiphyConfig.maxTrendingOffset);
@@ -36,15 +36,13 @@ class GifRepositoryImpl implements GifRepository {
   Future<Result<GifPage>> search(
     String query, {
     required int offset,
-    int limit = GiphyConfig.pageSize,
-    ContentRating rating = ContentRating.pg,
     CancellationToken? cancellation,
   }) => _guard(cancellation, (cancelToken) async {
     final response = await _api.search(
       query: query,
       offset: offset,
-      limit: limit,
-      rating: rating.apiValue,
+      limit: GiphyConfig.pageSize,
+      rating: GiphyConfig.rating,
       cancelToken: cancelToken,
     );
     return _toPage(response, offset, GiphyConfig.maxSearchOffset);
@@ -55,6 +53,32 @@ class GifRepositoryImpl implements GifRepository {
     final gif = (await _api.gifById(id))?.toDomain();
     return gif == null ? const Err(NotFoundFailure()) : Success(gif);
   });
+
+  @override
+  Future<Result<List<String>>> searchSuggestions(
+    String query, {
+    required int limit,
+    CancellationToken? cancellation,
+  }) => _guard(cancellation, (cancelToken) async {
+    final tags = await _api.searchTags(
+      query,
+      limit: limit,
+      cancelToken: cancelToken,
+    );
+    return Success(tags);
+  });
+
+  // Trending terms change slowly, so they are fetched once per app session.
+  @override
+  Future<Result<List<String>>> trendingSearches() async {
+    if (_trendingSearches case final cached?) return Success(cached);
+    final result = await _guard(
+      null,
+      (_) async => Success(await _api.trendingSearches()),
+    );
+    if (result case Success(value: final terms)) _trendingSearches = terms;
+    return result;
+  }
 
   Result<GifPage> _toPage(
     GifListResponseDto response,

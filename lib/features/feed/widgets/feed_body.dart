@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gif_loop/app/router/app_coordinator.dart';
@@ -11,9 +13,19 @@ import 'package:gif_loop/features/feed/bloc/feed_state.dart';
 import 'package:gif_loop/features/feed/widgets/feed_footer.dart';
 import 'package:gif_loop/features/feed/widgets/feed_skeleton.dart';
 import 'package:gif_loop/features/feed/widgets/gif_masonry_grid.dart';
+import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
 
 class FeedBody extends StatelessWidget {
   const new({super.key});
+
+  // Opening a result is a commitment to the query, so it becomes a recent.
+  void _openGif(BuildContext context, Gif gif, String query) {
+    if (query.isNotEmpty) {
+      unawaited(context.read<RecentSearchesCubit>().add(query));
+    }
+    context.read<AppCoordinator>().showGifDetails(gif);
+  }
 
   @override
   Widget build(BuildContext context) => BlocBuilder<FeedBloc, FeedState>(
@@ -27,7 +39,7 @@ class FeedBody extends StatelessWidget {
           slivers: [
             GifMasonryGrid(
               items: state.items,
-              onGifTap: context.read<AppCoordinator>().showGifDetails,
+              onGifTap: (gif) => _openGif(context, gif, state.query),
             ),
             const FeedFooter(),
           ],

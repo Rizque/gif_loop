@@ -12,7 +12,12 @@ import 'package:gif_loop/features/gifs/data/gif_repository_impl.dart';
 import 'package:gif_loop/features/gifs/data/giphy_api.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/gifs/domain/gif_repository.dart';
+import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
+import 'package:gif_loop/features/search/cubit/suggestions_cubit.dart';
+import 'package:gif_loop/features/search/cubit/trending_searches_cubit.dart';
+import 'package:gif_loop/features/search/data/recent_searches_repository.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> configureDependencies(
   GetIt getIt, {
@@ -29,7 +34,12 @@ Future<void> configureDependencies(
     ..registerLazySingleton<BaseCacheManager>(DefaultCacheManager.new)
     ..registerLazySingleton(() => GifFrameLoader(getIt()))
     ..registerLazySingleton(() => DominantColorExtractor(getIt()))
+    ..registerLazySingleton(SharedPreferencesAsync.new)
+    ..registerLazySingleton(() => RecentSearchesRepository(getIt()))
     ..registerFactory(() => FeedBloc(repository: getIt()))
+    ..registerFactory(() => SuggestionsCubit(repository: getIt()))
+    ..registerFactory(() => RecentSearchesCubit(getIt()))
+    ..registerFactory(() => TrendingSearchesCubit(getIt()))
     ..registerFactoryParam<GifDetailsCubit, String, Gif?>(
       (gifId, initialGif) => GifDetailsCubit(
         gifId: gifId,

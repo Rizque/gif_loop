@@ -6,7 +6,6 @@ import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/core/network/cancellation_token.dart';
 import 'package:gif_loop/features/gifs/data/gif_repository_impl.dart';
 import 'package:gif_loop/features/gifs/data/giphy_api.dart';
-import 'package:gif_loop/features/gifs/domain/content_rating.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/gifs/domain/gif_page.dart';
 import 'package:mocktail/mocktail.dart';
@@ -81,7 +80,7 @@ void main() {
       expect(call.query, {
         'offset': 30,
         'limit': GiphyConfig.pageSize,
-        'rating': 'pg',
+        'rating': GiphyConfig.rating,
       });
     });
 
@@ -148,20 +147,15 @@ void main() {
     test('calls gifs/search with query, language and rating', () async {
       stubGet(fixture('trending_page.json'));
 
-      await repository.search(
-        'cats',
-        offset: 5,
-        limit: 10,
-        rating: ContentRating.g,
-      );
+      await repository.search('cats', offset: 5);
 
       final call = capturedGet();
       expect(call.path, 'gifs/search');
       expect(call.query, {
         'q': 'cats',
         'offset': 5,
-        'limit': 10,
-        'rating': 'g',
+        'limit': GiphyConfig.pageSize,
+        'rating': GiphyConfig.rating,
         'lang': GiphyConfig.language,
       });
     });

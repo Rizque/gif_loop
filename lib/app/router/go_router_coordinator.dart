@@ -15,6 +15,9 @@ import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/library/library_page.dart';
+import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
+import 'package:gif_loop/features/search/cubit/suggestions_cubit.dart';
+import 'package:gif_loop/features/search/cubit/trending_searches_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouterCoordinator implements AppCoordinator {
@@ -43,8 +46,16 @@ class GoRouterCoordinator implements AppCoordinator {
             routes: [
               GoRoute(
                 path: Routes.feed,
-                builder: (context, state) => BlocProvider(
-                  create: (_) => _getIt<FeedBloc>()..add(const FeedStarted()),
+                builder: (context, state) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) =>
+                          _getIt<FeedBloc>()..add(const FeedStarted()),
+                    ),
+                    BlocProvider(create: (_) => _getIt<SuggestionsCubit>()),
+                    BlocProvider(create: (_) => _createRecentSearchesCubit()),
+                    BlocProvider(create: (_) => _createTrendingSearchesCubit()),
+                  ],
                   child: const FeedPage(),
                 ),
               ),
@@ -70,6 +81,18 @@ class GoRouterCoordinator implements AppCoordinator {
       ),
     ],
   );
+
+  RecentSearchesCubit _createRecentSearchesCubit() {
+    final cubit = _getIt<RecentSearchesCubit>();
+    unawaited(cubit.load());
+    return cubit;
+  }
+
+  TrendingSearchesCubit _createTrendingSearchesCubit() {
+    final cubit = _getIt<TrendingSearchesCubit>();
+    unawaited(cubit.load());
+    return cubit;
+  }
 
   GifDetailsCubit _createDetailsCubit(GoRouterState state) {
     final cubit = _getIt<GifDetailsCubit>(

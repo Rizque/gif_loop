@@ -46,6 +46,34 @@ class GiphyApi {
     return data == null ? null : GifDto.fromJson(data);
   }
 
+  Future<List<String>> searchTags(
+    String query, {
+    required int limit,
+    CancelToken? cancelToken,
+  }) async {
+    final json = await _get('gifs/search/tags', {
+      'q': query,
+      'limit': limit,
+    }, cancelToken);
+    return _dataList(json)
+        .map(readMap)
+        .nonNulls
+        .map((tag) => readString(tag['name']))
+        .nonNulls
+        .toList();
+  }
+
+  Future<List<String>> trendingSearches() async {
+    final json = await _get('trending/searches', const {});
+    return _dataList(json).map(readString).nonNulls.toList();
+  }
+
+  static List<Object?> _dataList(Map<String, dynamic> json) =>
+      switch (json['data']) {
+        final List<Object?> data => data,
+        _ => throw const FormatException('GIPHY response has no data array'),
+      };
+
   Future<Map<String, dynamic>> _get(
     String path,
     Map<String, Object> queryParameters, [

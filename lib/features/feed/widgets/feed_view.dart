@@ -7,9 +7,12 @@ import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/bloc/feed_state.dart';
 import 'package:gif_loop/features/feed/widgets/feed_body.dart';
 import 'package:gif_loop/features/feed/widgets/feed_header.dart';
+import 'package:gif_loop/features/search/widgets/trending_searches_row.dart';
 
 class FeedView extends StatefulWidget {
-  const new({super.key});
+  const new({required this.onSearch, super.key});
+
+  final ValueChanged<String> onSearch;
 
   @override
   State<FeedView> createState() => _FeedViewState();
@@ -95,7 +98,11 @@ class _FeedViewState extends State<FeedView> {
           controller: _scrollController,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
-          slivers: const [FeedHeader(), FeedBody()],
+          slivers: [
+            const FeedHeader(),
+            TrendingSearchesRow(onSearch: widget.onSearch),
+            const FeedBody(),
+          ],
         ),
       ),
     ),

@@ -16,6 +16,10 @@ abstract final class Strings {
 
   static const String searchHint = 'Search GIPHY';
   static const String clearSearch = 'Clear search';
+  static const String recentSearches = 'Recent';
+  static const String clearAll = 'Clear all';
+  static String removeRecentSearch(String query) => 'Remove "$query"';
+  static const String trendingSearches = 'Trending searches';
   static const String trending = 'Trending';
   static const String loadingGifs = 'Loading GIFs';
   static String resultsFor(String query) => 'Results for "$query"';
