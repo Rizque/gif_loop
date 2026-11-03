@@ -79,9 +79,9 @@ void main() {
     });
 
     test('continues from the current frame when the mode changes', () {
-      final engine = _engine(4)..advance(const Duration(milliseconds: 200));
-
-      engine.mode = LoopMode.reverse;
+      final engine = _engine(4)
+        ..advance(const Duration(milliseconds: 200))
+        ..mode = LoopMode.reverse;
 
       expect(_play(engine, 3), [1, 0, 3]);
     });
@@ -142,9 +142,9 @@ void main() {
 
   group('seek and step', () {
     test('seek clamps to the frame range and resets frame progress', () {
-      final engine = _engine(5)..advance(const Duration(milliseconds: 50));
-
-      engine.seek(3);
+      final engine = _engine(5)
+        ..advance(const Duration(milliseconds: 50))
+        ..seek(3);
       expect(engine.currentIndex, 3);
       expect(engine.advance(const Duration(milliseconds: 99)), 3);
 

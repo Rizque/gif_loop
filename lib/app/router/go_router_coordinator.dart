@@ -8,6 +8,8 @@ import 'package:gif_loop/app/router/routes.dart';
 import 'package:gif_loop/app/shell/app_shell.dart';
 import 'package:gif_loop/app/shell/app_tab.dart';
 import 'package:gif_loop/app/shell/shell_branch_container.dart';
+import 'package:gif_loop/features/details/cubit/gif_details_cubit.dart';
+import 'package:gif_loop/features/details/gif_details_page.dart';
 import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
@@ -49,8 +51,28 @@ class GoRouterCoordinator implements AppCoordinator {
           ),
         ],
       ),
+      GoRoute(
+        path: Routes.gifDetailsPattern,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => BlocProvider(
+          create: (_) => _createDetailsCubit(state),
+          child: const GifDetailsPage(),
+        ),
+      ),
     ],
   );
+
+  GifDetailsCubit _createDetailsCubit(GoRouterState state) {
+    final cubit = _getIt<GifDetailsCubit>(
+      param1: state.pathParameters[Routes.gifIdParam] ?? '',
+      param2: switch (state.extra) {
+        final Gif gif => gif,
+        _ => null,
+      },
+    );
+    unawaited(cubit.load());
+    return cubit;
+  }
 
   void _showTab(AppTab tab) => switch (tab) {
     AppTab.explore => showFeed(),

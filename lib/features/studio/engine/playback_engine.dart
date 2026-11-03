@@ -5,7 +5,7 @@ class PlaybackEngine {
     : assert(frameDurations.isNotEmpty, 'A GIF has at least one frame'),
       _durations = [
         for (final duration in frameDurations)
-          duration < minFrameDuration ? fallbackFrameDuration : duration,
+          if (duration < minFrameDuration) fallbackFrameDuration else duration,
       ];
 
   // Browsers play GIF frames shorter than 20 ms at 100 ms, and many GIFs

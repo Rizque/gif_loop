@@ -45,6 +45,8 @@ abstract final class Strings {
   static const String nextFrame = 'Next frame';
   static const String frameScrubber = 'Frame';
   static const String speed = 'Speed';
+  static String speedLabel(double speed) =>
+      '${speed == speed.truncateToDouble() ? speed.toInt() : speed}×';
   static const String loopMode = 'Loop';
   static const String loopForward = 'Forward';
   static const String loopReverse = 'Reverse';
