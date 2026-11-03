@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gif_loop/core/connectivity/reconnect_listener.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
 import 'package:gif_loop/core/widgets/giphy_attribution.dart';
 import 'package:gif_loop/features/details/widgets/gif_actions.dart';
@@ -45,6 +46,13 @@ class _GifDetailsViewState extends State<GifDetailsView>
 
   void _loadFrames() => unawaited(_controller.load(widget.gif.full.url));
 
+  void _retryAfterReconnect() {
+    if (_controller.status == StudioStatus.failure &&
+        (_controller.failure?.isTransient ?? false)) {
+      _loadFrames();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final player = GifStudioPlayer(gif: widget.gif, controller: _controller);
@@ -55,47 +63,50 @@ class _GifDetailsViewState extends State<GifDetailsView>
         onRetry: _loadFrames,
       ),
     );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isLandscape =
-            constraints.maxWidth > constraints.maxHeight &&
-            constraints.maxWidth >= _landscapeMinWidth;
-        if (isLandscape) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(Spacing.l),
-                  child: Center(child: player),
+    return ReconnectListener(
+      onReconnected: _retryAfterReconnect,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isLandscape =
+              constraints.maxWidth > constraints.maxHeight &&
+              constraints.maxWidth >= _landscapeMinWidth;
+          if (isLandscape) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Spacing.l),
+                    child: Center(child: player),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(Spacing.l),
-                  child: details,
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(Spacing.l),
+                    child: details,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            );
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(Spacing.l),
+            child: Column(
+              spacing: Spacing.l,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight:
+                        constraints.maxHeight * _portraitPlayerMaxHeightFactor,
+                  ),
+                  child: player,
+                ),
+                details,
+              ],
+            ),
           );
-        }
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(Spacing.l),
-          child: Column(
-            spacing: Spacing.l,
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight:
-                      constraints.maxHeight * _portraitPlayerMaxHeightFactor,
-                ),
-                child: player,
-              ),
-              details,
-            ],
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 }

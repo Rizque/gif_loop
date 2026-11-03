@@ -5,6 +5,7 @@ import 'package:gif_loop/app/di.dart';
 import 'package:gif_loop/app/missing_api_key_app.dart';
 import 'package:gif_loop/app/router/go_router_coordinator.dart';
 import 'package:gif_loop/core/config/env.dart';
+import 'package:gif_loop/core/connectivity/connectivity_cubit.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 
 Future<void> main() async {
@@ -18,6 +19,7 @@ Future<void> main() async {
   runApp(
     GifLoopApp(
       coordinator: getIt<GoRouterCoordinator>(),
+      connectivityCubit: getIt<ConnectivityCubit>(),
       frameLoader: getIt<GifFrameLoader>(),
     ),
   );
