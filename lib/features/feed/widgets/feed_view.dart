@@ -10,9 +10,10 @@ import 'package:gif_loop/features/feed/widgets/feed_header.dart';
 import 'package:gif_loop/features/search/widgets/trending_searches_row.dart';
 
 class FeedView extends StatefulWidget {
-  const new({required this.onSearch, super.key});
+  const new({required this.onSearch, super.key, this.floatingHeader});
 
   final ValueChanged<String> onSearch;
+  final Widget? floatingHeader;
 
   @override
   State<FeedView> createState() => _FeedViewState();
@@ -99,6 +100,17 @@ class _FeedViewState extends State<FeedView> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            if (widget.floatingHeader case final header?)
+              SliverFloatingHeader(
+                snapMode: FloatingHeaderSnapMode.scroll,
+                animationStyle: MediaQuery.disableAnimationsOf(context)
+                    ? AnimationStyle.noAnimation
+                    : null,
+                child: ColoredBox(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: header,
+                ),
+              ),
             const FeedHeader(),
             TrendingSearchesRow(onSearch: widget.onSearch),
             const FeedBody(),

@@ -15,6 +15,9 @@ class MockAppCoordinator extends Mock implements AppCoordinator;
 enum TestScreen {
   phonePortrait(Size(360, 640)),
   phoneLandscape(Size(640, 360)),
+  modernPhonePortrait(Size(390, 844)),
+  modernPhoneLandscape(Size(844, 390)),
+  tabletPortrait(Size(1024, 1366)),
   tabletLandscape(Size(1280, 800));
 
   new(this.size);
@@ -32,6 +35,7 @@ extension PumpApp on WidgetTester {
     double textScale = 1,
     ThemeMode themeMode = ThemeMode.light,
     bool disableAnimations = false,
+    bool accessibleNavigation = false,
   }) {
     view
       ..physicalSize = screen.size
@@ -60,6 +64,7 @@ extension PumpApp on WidgetTester {
               data: MediaQuery.of(context).copyWith(
                 textScaler: TextScaler.linear(textScale),
                 disableAnimations: disableAnimations,
+                accessibleNavigation: accessibleNavigation,
               ),
               child: child ?? const SizedBox.shrink(),
             ),

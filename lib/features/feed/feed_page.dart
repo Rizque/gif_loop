@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gif_loop/core/config/breakpoints.dart';
 import 'package:gif_loop/core/connectivity/reconnect_listener.dart';
+import 'package:gif_loop/core/widgets/size_reporter.dart';
 import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/bloc/feed_state.dart';
@@ -22,11 +24,13 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final ValueNotifier<double> _headerHeight = ValueNotifier(0);
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _headerHeight.dispose();
     super.dispose();
   }
 
@@ -64,39 +68,66 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final scaffold = Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            FeedSearchField(
-              controller: _controller,
-              focusNode: _focusNode,
-              onChanged: _onChanged,
-              onSubmitted: _runSearch,
-              onCleared: _clear,
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  FeedView(onSearch: _runSearch),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: SearchPanel(
-                        focusNode: _focusNode,
-                        controller: _controller,
-                        onSearch: _runSearch,
+    final searchField = FeedSearchField(
+      controller: _controller,
+      focusNode: _focusNode,
+      onChanged: _onChanged,
+      onSubmitted: _runSearch,
+      onCleared: _clear,
+    );
+    final searchPanel = SearchPanel(
+      focusNode: _focusNode,
+      controller: _controller,
+      onSearch: _runSearch,
+    );
+    // On a landscape phone vertical space is scarce, so the search field
+    // floats with the grid: it scrolls away and returns on a small scroll up.
+    final body = Breakpoints.isPhoneLandscape(MediaQuery.sizeOf(context))
+        ? Stack(
+            children: [
+              FeedView(
+                onSearch: _runSearch,
+                floatingHeader: SizeReporter(
+                  onSizeChanged: (size) {
+                    if (mounted) _headerHeight.value = size.height;
+                  },
+                  child: searchField,
+                ),
+              ),
+              Positioned.fill(
+                child: ValueListenableBuilder<double>(
+                  valueListenable: _headerHeight,
+                  builder: (context, headerHeight, panel) => Padding(
+                    padding: EdgeInsets.only(top: headerHeight),
+                    child: panel,
+                  ),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: searchPanel,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : Column(
+            children: [
+              searchField,
+              Expanded(
+                child: Stack(
+                  children: [
+                    FeedView(onSearch: _runSearch),
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: searchPanel,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            ],
+          );
+    final scaffold = Scaffold(body: SafeArea(bottom: false, child: body));
     return ReconnectListener(
       onReconnected: () =>
           context.read<FeedBloc>().add(const FeedReconnected()),

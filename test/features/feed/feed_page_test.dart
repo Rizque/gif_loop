@@ -197,6 +197,71 @@ void main() {
     expect(find.text(Strings.endOfResults), findsOneWidget);
   });
 
+  group('search header', () {
+    Finder searchBarInGrid() => find.descendant(
+      of: find.byType(CustomScrollView),
+      matching: find.byType(SearchBar),
+    );
+
+    testWidgets('stays pinned above the grid in portrait', (tester) async {
+      when(() => bloc.state).thenReturn(loaded);
+
+      await pumpFeed(tester, screen: TestScreen.modernPhonePortrait);
+
+      expect(find.byType(SearchBar), findsOneWidget);
+      expect(searchBarInGrid(), findsNothing);
+    });
+
+    testWidgets('floats with the grid on a landscape phone', (tester) async {
+      when(() => bloc.state).thenReturn(loaded);
+      await pumpFeed(tester, screen: TestScreen.modernPhoneLandscape);
+      await tester.pump();
+      expect(find.byType(SliverFloatingHeader), findsOneWidget);
+      expect(searchBarInGrid(), findsOneWidget);
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      expect(find.byType(SearchBar).hitTestable(), findsNothing);
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(find.byType(SearchBar).hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('shows the panel below the floating field when focused', (
+      tester,
+    ) async {
+      when(() => bloc.state).thenReturn(loaded);
+      await recents.add('pizza');
+      await pumpFeed(tester, screen: TestScreen.modernPhoneLandscape);
+      await tester.pump();
+
+      await tester.tap(find.byType(SearchBar));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('pizza'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text(Strings.recentSearches)).dy,
+        greaterThanOrEqualTo(tester.getBottomLeft(find.byType(SearchBar)).dy),
+      );
+    });
+
+    testWidgets('keeps loading more pages with the floating header', (
+      tester,
+    ) async {
+      when(() => bloc.state).thenReturn(loaded);
+      await pumpFeed(tester, screen: TestScreen.modernPhoneLandscape);
+      await tester.pump();
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
+      await tester.pumpAndSettle();
+
+      verify(() => bloc.add(any(that: isA<FeedNextPageRequested>())))
+          .called(greaterThan(0));
+    });
+  });
+
   group('smart search', () {
     testWidgets('shows recent searches when the empty field is focused', (
       tester,
