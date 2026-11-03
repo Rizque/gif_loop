@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gif_loop/core/connectivity/reconnect_listener.dart';
 import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
+import 'package:gif_loop/features/feed/bloc/feed_state.dart';
 import 'package:gif_loop/features/feed/widgets/feed_search_field.dart';
 import 'package:gif_loop/features/feed/widgets/feed_view.dart';
 import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
@@ -50,10 +51,20 @@ class _FeedPageState extends State<FeedPage> {
 
   void _clear() => _runSearch('');
 
+  // Android back steps out of search before leaving the app: first it
+  // closes the search panel, then it clears the query (back to Trending).
+  void _onBackPressed() {
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+      context.read<SuggestionsCubit>().clear();
+      return;
+    }
+    _clear();
+  }
+
   @override
-  Widget build(BuildContext context) => ReconnectListener(
-    onReconnected: () => context.read<FeedBloc>().add(const FeedReconnected()),
-    child: Scaffold(
+  Widget build(BuildContext context) {
+    final scaffold = Scaffold(
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -85,6 +96,27 @@ class _FeedPageState extends State<FeedPage> {
           ],
         ),
       ),
-    ),
-  );
+    );
+    return ReconnectListener(
+      onReconnected: () =>
+          context.read<FeedBloc>().add(const FeedReconnected()),
+      child: BlocSelector<FeedBloc, FeedState, bool>(
+        selector: (state) => state.query.isNotEmpty,
+        builder: (context, hasQuery) => ListenableBuilder(
+          listenable: Listenable.merge([_focusNode, _controller]),
+          builder: (context, child) => PopScope(
+            canPop:
+                !hasQuery &&
+                !_focusNode.hasFocus &&
+                _controller.text.trim().isEmpty,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop) _onBackPressed();
+            },
+            child: child ?? const SizedBox.shrink(),
+          ),
+          child: scaffold,
+        ),
+      ),
+    );
+  }
 }
