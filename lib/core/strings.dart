@@ -27,7 +27,6 @@ abstract final class Strings {
   static const String refreshFailed = "Couldn't refresh the feed.";
   static const String untitled = 'Untitled';
 
-  static const String back = 'Back';
   static const String copyLink = 'Copy link';
   static const String share = 'Share';
   static const String openInGiphy = 'Open in GIPHY';
