@@ -21,6 +21,12 @@ jobs:
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      - name: Create .env with a dummy key
+        run: echo "GIPHY_API_KEY=ci_dummy_key" > .env
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze
         run: flutter analyze
 

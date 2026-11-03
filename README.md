@@ -35,15 +35,16 @@ The code uses Dart 3.13 syntax enforced by the lint set (`new(...)` constructors
    ```
    GIPHY_API_KEY=your_key_here
    ```
-3. Run:
+3. Generate the config class and run:
    ```sh
    flutter pub get
-   flutter run --dart-define-from-file=.env
+   dart run build_runner build
+   flutter run
    ```
 
-Without a key the app opens a "Missing API key" screen with these instructions instead of crashing.
+[envied](https://pub.dev/packages/envied) compiles the key from `.env` into `lib/core/config/env.g.dart` (obfuscated, git-ignored). Run `dart run build_runner build` again after changing `.env`. Without a key the app opens a "Missing API key" screen with these instructions instead of crashing.
 
-Checks (the same ones CI runs):
+Checks (the same ones CI runs, after `build_runner`):
 
 ```sh
 dart format --output=none --set-exit-if-changed .
@@ -77,7 +78,7 @@ flutter test --coverage
 | Bonus: Coordinator navigation | ✅ | `lib/app/router/app_coordinator.dart`, `go_router_coordinator.dart` (the only file that knows routes) |
 | Bonus: Network availability handling | ✅ | `lib/core/connectivity/`, `lib/core/widgets/offline_banner.dart`, auto-retry in every feature |
 | Bonus: Something unique | ✅ | GIF Studio, dominant-color detail page, Guess the GIF |
-| API key not committed | ✅ | `--dart-define-from-file=.env`, `.env` git-ignored, `.env.example` committed |
+| API key not committed | ✅ | `lib/core/config/env.dart` (envied, obfuscated); `.env` and `env.g.dart` git-ignored, `.env.example` committed |
 | GIPHY attribution | ✅ | `lib/core/widgets/giphy_attribution.dart`, shown in the feed header, end of results and detail page |
 | CI | ✅ | `.github/workflows/ci.yml` (format, analyze, test with coverage) |
 

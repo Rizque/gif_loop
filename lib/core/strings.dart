@@ -8,8 +8,8 @@ abstract final class Strings {
 
   static const String missingApiKeyTitle = 'Missing API key';
   static const String missingApiKeyMessage =
-      'Copy .env.example to .env, put your GIPHY API key in it and '
-      'run:\n\nflutter run --dart-define-from-file=.env';
+      'Copy .env.example to .env, put your GIPHY API key in it, then run:'
+      '\n\ndart run build_runner build\nflutter run';
 
   static const String offlineBanner =
       "You're offline. Showing what's already loaded.";
