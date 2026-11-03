@@ -5,7 +5,7 @@ import 'package:gif_loop/features/studio/engine/playback_engine.dart';
 
 // Plays the remix plan itself (trim, order, speed and merged frames), so the
 // preview shows exactly what the export will produce.
-class RemixPreviewController {
+class RemixPreviewController extends ChangeNotifier {
   new({required TickerProvider vsync}) {
     _ticker = vsync.createTicker(_onTick);
   }
@@ -15,7 +15,16 @@ class RemixPreviewController {
   List<RemixFrame> _frames = const [];
   PlaybackEngine? _engine;
   bool _isPinned = false;
+  bool? _wantsPlayback;
   Duration _lastTick = Duration.zero;
+
+  // Follows the system reduce-motion setting until the user presses play or
+  // pause themselves.
+  bool autoplay = true;
+
+  bool get hasPlayback => _frames.length > 1;
+
+  bool get isPlaying => _ticker.isActive;
 
   void showPlan(RemixPlan plan) {
     _frames = plan.frames;
@@ -25,10 +34,17 @@ class RemixPreviewController {
     if (!_isPinned) _restart();
   }
 
+  void togglePlay() {
+    _wantsPlayback = !isPlaying;
+    _isPinned = false;
+    _restart();
+  }
+
   void pin(int index) {
     _isPinned = true;
     _ticker.stop();
     sourceIndex.value = index;
+    notifyListeners();
   }
 
   void resume() {
@@ -40,11 +56,12 @@ class RemixPreviewController {
     _ticker.stop();
     if (_frames case [final first, ...]) {
       sourceIndex.value = first.sourceIndex;
-      if (_frames.length > 1) {
+      if (hasPlayback && (_wantsPlayback ?? autoplay)) {
         _lastTick = Duration.zero;
         _ticker.start();
       }
     }
+    notifyListeners();
   }
 
   void _onTick(Duration elapsed) {
@@ -56,8 +73,10 @@ class RemixPreviewController {
     }
   }
 
+  @override
   void dispose() {
     _ticker.dispose();
     sourceIndex.dispose();
+    super.dispose();
   }
 }

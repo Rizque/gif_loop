@@ -52,6 +52,12 @@ class _RemixEditorPageState extends State<RemixEditorPage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _preview.autoplay = !MediaQuery.disableAnimationsOf(context);
+  }
+
+  @override
   void dispose() {
     _source
       ..removeListener(_onSourceChanged)

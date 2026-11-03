@@ -40,9 +40,15 @@ class _GifDetailsViewState extends State<GifDetailsView>
     loader: context.read<GifFrameLoader>(),
   );
 
+  bool _isLoadStarted = false;
+
+  // The first load needs MediaQuery (reduce motion), so it waits for
+  // didChangeDependencies instead of initState.
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoadStarted) return;
+    _isLoadStarted = true;
     _loadFrames();
   }
 
@@ -53,7 +59,11 @@ class _GifDetailsViewState extends State<GifDetailsView>
   }
 
   void _loadFrames() => unawaited(
-    _controller.load(url: widget.gif.full.url, file: _favorite?.fullFile),
+    _controller.load(
+      url: widget.gif.full.url,
+      file: _favorite?.fullFile,
+      autoplay: !MediaQuery.disableAnimationsOf(context),
+    ),
   );
 
   FavoriteGif? get _favorite =>

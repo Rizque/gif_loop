@@ -31,6 +31,7 @@ extension PumpApp on WidgetTester {
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
     ThemeMode themeMode = ThemeMode.light,
+    bool disableAnimations = false,
   }) {
     view
       ..physicalSize = screen.size
@@ -56,8 +57,10 @@ extension PumpApp on WidgetTester {
             darkTheme: AppTheme.dark(),
             themeMode: themeMode,
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(textScale)),
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScale),
+                disableAnimations: disableAnimations,
+              ),
               child: child ?? const SizedBox.shrink(),
             ),
             home: child,

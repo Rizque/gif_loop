@@ -1,3 +1,5 @@
+<img src="assets/icon/app_icon.png" width="64" height="64" alt="GifLoop app icon">
+
 # GifLoop
 
 Search GIPHY with smart suggestions, browse a masonry grid of GIFs, take any GIF apart frame by frame in the **GIF Studio**, keep favorites offline in your **Library**, and make your own GIFs in the **Remix editor**.
@@ -120,6 +122,8 @@ lib/
 - **Search details.** 400 ms feed debounce, 300 ms suggestion debounce, page size 30, de-duplication by id, rating `pg`, max offsets 4999 (search) and 499 (trending) per the GIPHY docs. Autocomplete uses `GET /v1/gifs/search/tags`, whose items only have `name`. Trending searches use `GET /v1/trending/searches`, which returns a plain string array.
 - **Rate limits.** Beta keys allow about 100 requests per hour. HTTP 429 shows "GIPHY request limit reached, try again later". Debouncing, cancelling, caching suggestions and loading trending searches once per session all help stay under the limit.
 - **Studio memory budget.** All frames are decoded within 120 MB and scaled down if needed.
+- **Reduce motion.** When the system asks to reduce motion (`MediaQuery.disableAnimationsOf`), the GIF Studio (detail page, remix viewer) and the remix editor preview start paused on the first frame with a visible play button. Grid tiles keep animating, because they are the content being browsed rather than decorative motion.
+- **App icon and splash.** Generated from `assets/icon/` with `flutter_launcher_icons` (Android adaptive icon with monochrome layer, iOS icon without alpha) and `flutter_native_splash` (including the Android 12+ splash API), configured in their own yaml files.
 
 ## Testing
 

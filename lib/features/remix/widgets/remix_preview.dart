@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
 import 'package:gif_loop/features/remix/cubit/remix_editor_cubit.dart';
 import 'package:gif_loop/features/remix/export/caption_painter.dart';
@@ -42,9 +43,34 @@ class RemixPreview extends StatelessWidget {
             CustomPaint(
               painter: CaptionPainter(topText: topText, bottomText: bottomText),
             ),
+            Positioned(
+              right: Spacing.s,
+              bottom: Spacing.s,
+              child: _PlayPauseButton(controller: controller),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+class _PlayPauseButton extends StatelessWidget {
+  const new({required this.controller});
+
+  final RemixPreviewController controller;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: controller,
+    builder: (context, _) {
+      if (!controller.hasPlayback) return const SizedBox.shrink();
+      final isPlaying = controller.isPlaying;
+      return IconButton.filledTonal(
+        tooltip: isPlaying ? Strings.pause : Strings.play,
+        onPressed: controller.togglePlay,
+        icon: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+      );
+    },
+  );
 }

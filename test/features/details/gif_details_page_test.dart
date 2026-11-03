@@ -70,6 +70,7 @@ void main() {
     GifDetailsState state, {
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
+    bool disableAnimations = false,
   }) async {
     when(() => cubit.state).thenReturn(state);
     await tester.pumpApp(
@@ -86,6 +87,7 @@ void main() {
       ],
       screen: screen,
       textScale: textScale,
+      disableAnimations: disableAnimations,
     );
   }
 
@@ -127,6 +129,32 @@ void main() {
     await tester.tap(find.byTooltip(Strings.nextFrame));
     await tester.pump();
     expect(find.text(Strings.frameCounter(2, 3)), findsOneWidget);
+  });
+
+  group('reduce motion', () {
+    testWidgets('starts paused on the first frame when animations are off', (
+      tester,
+    ) async {
+      await stubDecodedFrames(tester, 3);
+
+      await pumpDetails(tester, loadedWith(gif), disableAnimations: true);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(find.byTooltip(Strings.play), findsOneWidget);
+      expect(find.text(Strings.frameCounter(1, 3)), findsOneWidget);
+    });
+
+    testWidgets('loops automatically when animations are on', (tester) async {
+      await stubDecodedFrames(tester, 3);
+
+      await pumpDetails(tester, loadedWith(gif));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      expect(find.byTooltip(Strings.pause), findsOneWidget);
+      expect(find.text(Strings.frameCounter(2, 3)), findsOneWidget);
+    });
   });
 
   testWidgets('hides playback controls for a single-frame image', (

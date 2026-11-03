@@ -50,6 +50,7 @@ void main() {
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
     ThemeMode themeMode = ThemeMode.light,
+    bool disableAnimations = false,
   }) async {
     final image = await tester.runAsync(() => createTestImage(cache: false));
     final frames = [
@@ -80,6 +81,7 @@ void main() {
       screen: screen,
       textScale: textScale,
       themeMode: themeMode,
+      disableAnimations: disableAnimations,
     );
     await tester.pump();
   }
@@ -127,6 +129,20 @@ void main() {
     verify(coordinator.back).called(1);
     verify(() => library.deleteRemix('42')).called(1);
     expect(remixes.state.remixes, isEmpty);
+  });
+
+  testWidgets('starts paused when animations are off', (tester) async {
+    await pumpViewer(tester, disableAnimations: true);
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byTooltip(Strings.play), findsOneWidget);
+    expect(find.text(Strings.frameCounter(1, 3)), findsOneWidget);
+  });
+
+  testWidgets('loops when animations are on', (tester) async {
+    await pumpViewer(tester);
+
+    expect(find.byTooltip(Strings.pause), findsOneWidget);
   });
 
   testWidgets('shows a message for an unknown remix', (tester) async {

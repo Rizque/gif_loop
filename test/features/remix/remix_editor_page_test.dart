@@ -65,6 +65,7 @@ void main() {
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
     ThemeMode themeMode = ThemeMode.light,
+    bool disableAnimations = false,
   }) async {
     final editor = RemixEditorCubit(
       gif: gif,
@@ -104,6 +105,7 @@ void main() {
       screen: screen,
       textScale: textScale,
       themeMode: themeMode,
+      disableAnimations: disableAnimations,
     );
     await tester.tap(find.text('open'));
     await settle(tester);
@@ -120,6 +122,29 @@ void main() {
     expect(find.text(Strings.trimRange(1, 12)), findsOneWidget);
     expect(find.text(Strings.topText), findsOneWidget);
     expect(find.text(Strings.bottomText), findsOneWidget);
+  });
+
+  group('preview and reduce motion', () {
+    testWidgets('the preview starts paused when animations are off', (
+      tester,
+    ) async {
+      await stubFrames(tester, 6);
+
+      await pumpEditor(tester, disableAnimations: true);
+
+      expect(find.byTooltip(Strings.play), findsOneWidget);
+      await tester.tap(find.byTooltip(Strings.play));
+      await tester.pump();
+      expect(find.byTooltip(Strings.pause), findsOneWidget);
+    });
+
+    testWidgets('the preview loops when animations are on', (tester) async {
+      await stubFrames(tester, 6);
+
+      await pumpEditor(tester);
+
+      expect(find.byTooltip(Strings.pause), findsOneWidget);
+    });
   });
 
   testWidgets('disables export above the frame cap', (tester) async {

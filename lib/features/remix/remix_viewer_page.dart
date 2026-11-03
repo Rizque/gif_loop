@@ -67,9 +67,15 @@ class _RemixViewerState extends State<_RemixViewer>
     loader: context.read<GifFrameLoader>(),
   );
 
+  bool _isLoadStarted = false;
+
+  // The first load needs MediaQuery (reduce motion), so it waits for
+  // didChangeDependencies instead of initState.
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoadStarted) return;
+    _isLoadStarted = true;
     _load();
   }
 
@@ -79,7 +85,12 @@ class _RemixViewerState extends State<_RemixViewer>
     super.dispose();
   }
 
-  void _load() => unawaited(_controller.load(file: widget.remix.file));
+  void _load() => unawaited(
+    _controller.load(
+      file: widget.remix.file,
+      autoplay: !MediaQuery.disableAnimationsOf(context),
+    ),
+  );
 
   Future<void> _delete() async {
     final remixes = context.read<RemixesCubit>();
