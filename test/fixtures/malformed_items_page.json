@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "id": "noImages",
+      "title": "GIF without renditions",
+      "images": null
+    },
+    {
+      "title": "GIF without id",
+      "images": {
+        "original": {
+          "url": "https://media.giphy.com/media/x/giphy.gif"
+        }
+      }
+    },
+    "not an object",
+    {
+      "id": "onlyOriginal",
+      "title": "Only original",
+      "user": null,
+      "images": {
+        "fixed_width": null,
+        "original": {
+          "width": 320,
+          "height": "abc",
+          "url": "https://media.giphy.com/media/onlyOriginal/giphy.gif"
+        }
+      }
+    }
+  ],
+  "pagination": {
+    "total_count": "4",
+    "count": "4",
+    "offset": "0"
+  },
+  "meta": {
+    "status": 200,
+    "msg": "OK",
+    "response_id": "abc"
+  }
+}

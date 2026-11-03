@@ -1,0 +1,32 @@
+{
+  "data": {
+    "type": "gif",
+    "id": "3o7TKSjRrfIPjeiVyM",
+    "url": "https://giphy.com/gifs/cat-funny-3o7TKSjRrfIPjeiVyM",
+    "bitly_url": "https://gph.is/2fYMfXl",
+    "username": "catsofinstagram",
+    "title": "Cat Typing GIF by Cats",
+    "rating": "g",
+    "import_datetime": "2016-10-24 18:31:22",
+    "images": {
+      "fixed_width": {
+        "height": "150",
+        "width": "200",
+        "url": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/200w.gif",
+        "webp": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/200w.webp"
+      },
+      "original": {
+        "height": "360",
+        "width": "480",
+        "size": "1734322",
+        "url": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif",
+        "frames": "48"
+      }
+    }
+  },
+  "meta": {
+    "status": 200,
+    "msg": "OK",
+    "response_id": "a1b2c3"
+  }
+}
