@@ -48,4 +48,6 @@ app.*.map.json
 .widget_preview/
 
 # Local secrets
-env.json
+.env
+.env.*
+!.env.example

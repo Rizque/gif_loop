@@ -8,8 +8,8 @@ abstract final class Strings {
 
   static const String missingApiKeyTitle = 'Missing API key';
   static const String missingApiKeyMessage =
-      'Copy env.example.json to env.json, put your GIPHY API key in it and '
-      'run:\n\nflutter run --dart-define-from-file=env.json';
+      'Copy .env.example to .env, put your GIPHY API key in it and '
+      'run:\n\nflutter run --dart-define-from-file=.env';
 
   static const String offlineBanner =
       "You're offline. Showing what's already loaded.";
@@ -80,7 +80,7 @@ abstract final class Strings {
       'GIPHY request limit reached, try again later.';
   static const String unauthorizedTitle = 'Invalid API key';
   static const String unauthorizedMessage =
-      'GIPHY rejected the API key. Check GIPHY_API_KEY in env.json.';
+      'GIPHY rejected the API key. Check GIPHY_API_KEY in .env.';
   static const String notFoundTitle = 'Not found';
   static const String notFoundMessage = "This GIF doesn't exist anymore.";
   static const String serverTitle = 'GIPHY is having trouble';

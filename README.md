@@ -28,14 +28,17 @@ The code uses Dart 3.13 syntax enforced by the lint set (`new(...)` constructors
 ## Getting started
 
 1. Create an app at <https://developers.giphy.com/dashboard/> and copy its API key.
-2. Copy `env.example.json` to `env.json` and put the key in it (`env.json` is git-ignored):
-   ```json
-   { "GIPHY_API_KEY": "your_key_here" }
+2. Copy `.env.example` to `.env` and put the key in it (`.env` is git-ignored):
+   ```sh
+   cp .env.example .env
+   ```
+   ```
+   GIPHY_API_KEY=your_key_here
    ```
 3. Run:
    ```sh
    flutter pub get
-   flutter run --dart-define-from-file=env.json
+   flutter run --dart-define-from-file=.env
    ```
 
 Without a key the app opens a "Missing API key" screen with these instructions instead of crashing.
@@ -74,7 +77,7 @@ flutter test --coverage
 | Bonus: Coordinator navigation | ✅ | `lib/app/router/app_coordinator.dart`, `go_router_coordinator.dart` (the only file that knows routes) |
 | Bonus: Network availability handling | ✅ | `lib/core/connectivity/`, `lib/core/widgets/offline_banner.dart`, auto-retry in every feature |
 | Bonus: Something unique | ✅ | GIF Studio, dominant-color detail page, Guess the GIF |
-| API key not committed | ✅ | `--dart-define-from-file=env.json`, `env.json` git-ignored, `env.example.json` committed |
+| API key not committed | ✅ | `--dart-define-from-file=.env`, `.env` git-ignored, `.env.example` committed |
 | GIPHY attribution | ✅ | `lib/core/widgets/giphy_attribution.dart`, shown in the feed header, end of results and detail page |
 | CI | ✅ | `.github/workflows/ci.yml` (format, analyze, test with coverage) |
 
