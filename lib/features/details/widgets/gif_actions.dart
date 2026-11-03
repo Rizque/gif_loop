@@ -9,9 +9,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GifActions extends StatelessWidget {
-  const new({required this.gif, super.key});
+  const new({required this.gif, required this.onRemix, super.key});
 
   final Gif gif;
+  final VoidCallback onRemix;
 
   Future<void> _copyLink(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -36,6 +37,11 @@ class GifActions extends StatelessWidget {
     spacing: Spacing.s,
     runSpacing: Spacing.s,
     children: [
+      FilledButton.icon(
+        onPressed: onRemix,
+        icon: const Icon(Icons.auto_fix_high_rounded),
+        label: const Text(Strings.remix),
+      ),
       FilledButton.tonalIcon(
         onPressed: () => _copyLink(context),
         icon: const Icon(Icons.link_rounded),

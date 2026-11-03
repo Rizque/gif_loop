@@ -7,6 +7,7 @@ import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/app_theme.dart';
 import 'package:gif_loop/core/widgets/offline_banner.dart';
 import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
+import 'package:gif_loop/features/library/cubit/remixes_cubit.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 
 class GifLoopApp extends StatelessWidget {
@@ -14,6 +15,7 @@ class GifLoopApp extends StatelessWidget {
     required this.coordinator,
     required this.connectivityCubit,
     required this.favoritesCubit,
+    required this.remixesCubit,
     required this.frameLoader,
     super.key,
   });
@@ -21,6 +23,7 @@ class GifLoopApp extends StatelessWidget {
   final GoRouterCoordinator coordinator;
   final ConnectivityCubit connectivityCubit;
   final FavoritesCubit favoritesCubit;
+  final RemixesCubit remixesCubit;
   final GifFrameLoader frameLoader;
 
   @override
@@ -33,6 +36,7 @@ class GifLoopApp extends StatelessWidget {
       providers: [
         BlocProvider.value(value: connectivityCubit),
         BlocProvider.value(value: favoritesCubit),
+        BlocProvider.value(value: remixesCubit),
       ],
       child: MaterialApp.router(
         title: Strings.appName,

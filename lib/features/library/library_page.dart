@@ -7,7 +7,9 @@ import 'package:gif_loop/features/library/widgets/favorites_view.dart';
 import 'package:gif_loop/features/library/widgets/remixes_view.dart';
 
 class LibraryPage extends StatefulWidget {
-  const new({super.key});
+  const new({super.key, this.requestedSegment});
+
+  final LibrarySegment? requestedSegment;
 
   @override
   State<LibraryPage> createState() => _LibraryPageState();
@@ -16,7 +18,17 @@ class LibraryPage extends StatefulWidget {
 // The Library branch stays mounted for the whole session, so the selected
 // segment is remembered while the app runs.
 class _LibraryPageState extends State<LibraryPage> {
-  LibrarySegment _segment = LibrarySegment.favorites;
+  late LibrarySegment _segment =
+      widget.requestedSegment ?? LibrarySegment.favorites;
+
+  @override
+  void didUpdateWidget(LibraryPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final requested = widget.requestedSegment;
+    if (requested != null && requested != oldWidget.requestedSegment) {
+      _segment = requested;
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(

@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gif_loop/core/errors/failure.dart';
 import 'package:gif_loop/core/errors/failure_presentation.dart';
-import 'package:gif_loop/core/platform/adaptive_segmented_control.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
-import 'package:gif_loop/features/studio/engine/playback_engine.dart';
-import 'package:gif_loop/features/studio/engine/studio_settings.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
+import 'package:gif_loop/features/studio/widgets/playback_settings_controls.dart';
 
 class GifStudioControls extends StatelessWidget {
   const new({required this.controller, required this.onRetry, super.key});
@@ -138,27 +136,11 @@ class _PlaybackControls extends StatelessWidget {
           ],
         ),
         _FrameScrubber(controller: controller),
-        _LabeledControl(
-          label: Strings.speed,
-          child: AdaptiveSegmentedControl<double>(
-            values: StudioSettings.speeds,
-            selected: controller.speed,
-            labelOf: Strings.speedLabel,
-            onChanged: (speed) => controller.speed = speed,
-          ),
-        ),
-        _LabeledControl(
-          label: Strings.loopMode,
-          child: AdaptiveSegmentedControl<LoopMode>(
-            values: LoopMode.values,
-            selected: controller.loopMode,
-            labelOf: (mode) => switch (mode) {
-              LoopMode.forward => Strings.loopForward,
-              LoopMode.reverse => Strings.loopReverse,
-              LoopMode.pingPong => Strings.loopPingPong,
-            },
-            onChanged: (mode) => controller.loopMode = mode,
-          ),
+        PlaybackSettingsControls(
+          speed: controller.speed,
+          loopMode: controller.loopMode,
+          onSpeedChanged: (speed) => controller.speed = speed,
+          onLoopModeChanged: (mode) => controller.loopMode = mode,
         ),
       ],
     );
@@ -200,34 +182,6 @@ class _FrameScrubber extends StatelessWidget {
         onChangeStart: (_) => controller.pause(),
         onChanged: (value) => controller.seek(value.round()),
       ),
-    ),
-  );
-}
-
-class _LabeledControl extends StatelessWidget {
-  const new({required this.label, required this.child});
-
-  final String label;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: label,
-    container: true,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: Spacing.xs,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelLarge),
-        SizedBox(
-          width: double.infinity,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: child,
-          ),
-        ),
-      ],
     ),
   );
 }

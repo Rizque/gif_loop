@@ -14,10 +14,17 @@ import 'package:gif_loop/features/feed/bloc/feed_bloc.dart';
 import 'package:gif_loop/features/feed/bloc/feed_event.dart';
 import 'package:gif_loop/features/feed/feed_page.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/library/domain/remix.dart';
 import 'package:gif_loop/features/library/library_page.dart';
+import 'package:gif_loop/features/library/library_segment.dart';
+import 'package:gif_loop/features/remix/cubit/remix_editor_cubit.dart';
+import 'package:gif_loop/features/remix/domain/remix_editor_args.dart';
+import 'package:gif_loop/features/remix/remix_editor_page.dart';
+import 'package:gif_loop/features/remix/remix_viewer_page.dart';
 import 'package:gif_loop/features/search/cubit/recent_searches_cubit.dart';
 import 'package:gif_loop/features/search/cubit/suggestions_cubit.dart';
 import 'package:gif_loop/features/search/cubit/trending_searches_cubit.dart';
+import 'package:gif_loop/features/studio/engine/studio_settings.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouterCoordinator implements AppCoordinator {
@@ -65,7 +72,12 @@ class GoRouterCoordinator implements AppCoordinator {
             routes: [
               GoRoute(
                 path: Routes.library,
-                builder: (context, state) => const LibraryPage(),
+                builder: (context, state) => LibraryPage(
+                  requestedSegment:
+                      LibrarySegment.values.asNameMap()[state
+                          .uri
+                          .queryParameters[Routes.librarySegmentParam]],
+                ),
               ),
             ],
           ),
@@ -77,6 +89,30 @@ class GoRouterCoordinator implements AppCoordinator {
         builder: (context, state) => BlocProvider(
           create: (_) => _createDetailsCubit(state),
           child: const GifDetailsPage(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.remixEditorPattern,
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) => state.extra is RemixEditorArgs
+            ? null
+            : Routes.gifDetails(state.pathParameters[Routes.gifIdParam] ?? ''),
+        builder: (context, state) => switch (state.extra) {
+          final RemixEditorArgs args => BlocProvider(
+            create: (_) => _getIt<RemixEditorCubit>(
+              param1: args.gif,
+              param2: args.initialSettings,
+            ),
+            child: RemixEditorPage(gif: args.gif),
+          ),
+          _ => const SizedBox.shrink(),
+        },
+      ),
+      GoRoute(
+        path: Routes.remixPattern,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => RemixViewerPage(
+          remixId: state.pathParameters[Routes.remixIdParam] ?? '',
         ),
       ),
     ],
@@ -123,7 +159,20 @@ class GoRouterCoordinator implements AppCoordinator {
   void showFeed() => router.go(Routes.feed);
 
   @override
-  void showLibrary() => router.go(Routes.library);
+  void showLibrary({LibrarySegment? segment}) => router.go(
+    segment == null ? Routes.library : Routes.librarySegment(segment.name),
+  );
+
+  @override
+  void showRemixEditor(Gif gif, StudioSettings initial) => unawaited(
+    router.push(
+      Routes.remixEditor(gif.id),
+      extra: RemixEditorArgs(gif: gif, initialSettings: initial),
+    ),
+  );
+
+  @override
+  void showRemix(Remix remix) => unawaited(router.push(Routes.remix(remix.id)));
 
   @override
   void back() {

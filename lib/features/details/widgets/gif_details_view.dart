@@ -3,15 +3,20 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gif_loop/app/router/app_coordinator.dart';
 import 'package:gif_loop/core/connectivity/reconnect_listener.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
+import 'package:gif_loop/core/theme/tile_palette.dart';
 import 'package:gif_loop/core/widgets/giphy_attribution.dart';
 import 'package:gif_loop/features/details/widgets/gif_actions.dart';
 import 'package:gif_loop/features/details/widgets/gif_info_section.dart';
 import 'package:gif_loop/features/gifs/domain/gif.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_hero_tag.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_image.dart';
 import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
 import 'package:gif_loop/features/library/domain/favorite_gif.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
+import 'package:gif_loop/features/studio/engine/studio_settings.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
 import 'package:gif_loop/features/studio/widgets/gif_studio_controls.dart';
 import 'package:gif_loop/features/studio/widgets/gif_studio_player.dart';
@@ -54,6 +59,15 @@ class _GifDetailsViewState extends State<GifDetailsView>
   FavoriteGif? get _favorite =>
       context.read<FavoritesCubit>().state.favoriteOf(widget.gif.id);
 
+  // The editor starts from the speed and loop mode chosen in the Studio.
+  void _openRemixEditor() {
+    _controller.pause();
+    context.read<AppCoordinator>().showRemixEditor(
+      widget.gif,
+      StudioSettings(speed: _controller.speed, loopMode: _controller.loopMode),
+    );
+  }
+
   void _retryAfterReconnect() {
     if (_controller.status == StudioStatus.failure &&
         (_controller.failure?.isTransient ?? false)) {
@@ -63,15 +77,24 @@ class _GifDetailsViewState extends State<GifDetailsView>
 
   @override
   Widget build(BuildContext context) {
+    final gif = widget.gif;
     final player = GifStudioPlayer(
-      gif: widget.gif,
       controller: _controller,
-      previewFile: context.select<FavoritesCubit, File?>(
-        (cubit) => cubit.state.favoriteOf(widget.gif.id)?.previewFile,
+      aspectRatio: gif.preview.aspectRatio,
+      heroTag: gifHeroTag(gif.id),
+      semanticLabel: gif.title,
+      placeholder: GifImage(
+        rendition: gif.preview,
+        file: context.select<FavoritesCubit, File?>(
+          (cubit) => cubit.state.favoriteOf(gif.id)?.previewFile,
+        ),
+        placeholderColor: TilePalette.colorAt(0),
+        fit: BoxFit.contain,
       ),
     );
     final details = _DetailsColumn(
       gif: widget.gif,
+      onRemix: _openRemixEditor,
       controls: GifStudioControls(
         controller: _controller,
         onRetry: _loadFrames,
@@ -126,9 +149,10 @@ class _GifDetailsViewState extends State<GifDetailsView>
 }
 
 class _DetailsColumn extends StatelessWidget {
-  const new({required this.gif, required this.controls});
+  const new({required this.gif, required this.onRemix, required this.controls});
 
   final Gif gif;
+  final VoidCallback onRemix;
   final Widget controls;
 
   @override
@@ -138,7 +162,7 @@ class _DetailsColumn extends StatelessWidget {
     children: [
       controls,
       GifInfoSection(gif: gif),
-      GifActions(gif: gif),
+      GifActions(gif: gif, onRemix: onRemix),
       const Center(child: GiphyAttribution()),
     ],
   );

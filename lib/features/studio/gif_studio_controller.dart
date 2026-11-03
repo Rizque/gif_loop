@@ -44,6 +44,8 @@ class GifStudioController extends ChangeNotifier {
 
   int get frameCount => _frames.length;
 
+  List<GifFrame> get frames => _frames;
+
   bool get hasPlayback => frameCount > 1;
 
   bool get isPlaying => _isPlaying;
@@ -54,7 +56,7 @@ class GifStudioController extends ChangeNotifier {
 
   ui.Image get currentImage => _frames[frameIndex.value].image;
 
-  Future<void> load({String? url, File? file}) async {
+  Future<void> load({String? url, File? file, bool autoplay = true}) async {
     _loading?.cancel();
     final loading = _loading = CancellationToken();
     _pauseTicker();
@@ -84,7 +86,7 @@ class GifStudioController extends ChangeNotifier {
         _engine = PlaybackEngine([for (final frame in frames) frame.duration]);
         frameIndex.value = 0;
         _status = StudioStatus.ready;
-        if (hasPlayback) _startTicker();
+        if (autoplay && hasPlayback) _startTicker();
       case Err(:final failure):
         _status = StudioStatus.failure;
         _failure = failure;

@@ -39,6 +39,41 @@ abstract final class Strings {
   static const String myRemixes = 'My remixes';
   static const String noRemixesTitle = 'No remixes yet';
   static const String noRemixesMessage = 'Open any GIF and tap Remix.';
+
+  static const String remix = 'Remix';
+  static const String remixEditorTitle = 'Remix';
+  static const String trim = 'Trim';
+  static String trimRange(int first, int last) => 'Frames $first–$last';
+  static const String topText = 'Top text';
+  static const String bottomText = 'Bottom text';
+  static String remixInfo(int width, int height, int frames, String seconds) =>
+      '$width×$height · $frames frames · $seconds s';
+  static const String exportGif = 'Export GIF';
+  static const String frameLimitExceeded =
+      'Shorten the selection (max 150 frames)';
+  static String exporting(int percent) => 'Exporting… $percent%';
+  static const String cancel = 'Cancel';
+  static const String savedToLibrary = 'Saved to Library';
+  static const String viewInLibrary = 'View in Library';
+  static const String done = 'Done';
+  static const String close = 'Close';
+  static const String discardChangesTitle = 'Discard changes?';
+  static const String discardChangesMessage =
+      'Your remix settings will be lost.';
+  static const String keepEditing = 'Keep editing';
+  static const String discard = 'Discard';
+  static const String delete = 'Delete';
+  static const String deleteRemixTitle = 'Delete this remix?';
+  static const String deleteRemixMessage =
+      'The GIF file will be removed from this device.';
+  static const String remixNotFoundTitle = 'Remix not found';
+  static const String remixNotFoundMessage =
+      'It may have been deleted from your Library.';
+  static String remixOf(String title) => 'Remix of $title';
+  static const String remixedFrom = 'Remixed from';
+  static const String created = 'Created';
+  static const String duration = 'Duration';
+  static String seconds(String value) => '$value s';
   static const String addFavorite = 'Add to favorites';
   static const String removeFavorite = 'Remove from favorites';
   static const String favoriteFailed = "Couldn't save the favorite.";

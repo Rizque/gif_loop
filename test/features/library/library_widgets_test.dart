@@ -10,6 +10,7 @@ import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/features/details/widgets/favorite_button.dart';
 import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
+import 'package:gif_loop/features/library/cubit/remixes_cubit.dart';
 import 'package:gif_loop/features/library/domain/favorite_gif.dart';
 import 'package:gif_loop/features/library/library_page.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,6 +22,7 @@ import '../../helpers/pump_app.dart';
 void main() {
   late MockLibraryRepository repository;
   late FavoritesCubit favorites;
+  late RemixesCubit remixes;
   late MockAppCoordinator coordinator;
 
   final gif = makeGif('abc');
@@ -30,12 +32,20 @@ void main() {
   setUp(() {
     repository = MockLibraryRepository();
     favorites = FavoritesCubit(repository);
+    remixes = RemixesCubit(repository);
     coordinator = MockAppCoordinator();
     when(repository.favorites).thenAnswer((_) async => const []);
+    when(repository.remixes).thenAnswer((_) async => const []);
   });
 
   Future<void> pump(WidgetTester tester, Widget child) => tester.pumpApp(
-    BlocProvider.value(value: favorites, child: child),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: favorites),
+        BlocProvider.value(value: remixes),
+      ],
+      child: child,
+    ),
     coordinator: coordinator,
   );
 
@@ -104,6 +114,7 @@ void main() {
 
     testWidgets('switches to the remixes segment', (tester) async {
       await favorites.load();
+      await remixes.load();
 
       await pump(tester, const LibraryPage());
       await tester.tap(find.text(Strings.myRemixes));

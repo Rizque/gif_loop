@@ -17,25 +17,35 @@ class GifFrameLoader {
 
   final BaseCacheManager _cacheManager;
 
-  // A local file (favorite or remix) wins over the network so playback
-  // works offline; the url is the fallback if the file is missing.
   Future<Result<List<GifFrame>>> load({
     required CancellationToken cancellation,
     required ValueChanged<double> onProgress,
     String? url,
     File? file,
   }) async {
-    final Uint8List bytes;
+    final bytes = await loadBytes(url: url, file: file);
+    if (cancellation.isCancelled) return const Err(UnknownFailure());
+    return switch (bytes) {
+      Success(value: final bytes) => await _decode(
+        bytes,
+        cancellation,
+        onProgress,
+      ),
+      Err(:final failure) => Err(failure),
+    };
+  }
+
+  // A local file (favorite or remix) wins over the network so it works
+  // offline; the url is the fallback if the file is missing.
+  Future<Result<Uint8List>> loadBytes({String? url, File? file}) async {
     try {
       final source = file != null && file.existsSync()
           ? file
           : await _cacheManager.getSingleFile(url ?? '');
-      bytes = await source.readAsBytes();
+      return Success(await source.readAsBytes());
     } on Exception catch (error) {
       return Err(mapMediaError(error));
     }
-    if (cancellation.isCancelled) return const Err(UnknownFailure());
-    return await _decode(bytes, cancellation, onProgress);
   }
 
   Future<Result<List<GifFrame>>> _decode(
