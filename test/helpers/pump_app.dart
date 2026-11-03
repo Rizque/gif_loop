@@ -30,6 +30,7 @@ extension PumpApp on WidgetTester {
     List<RepositoryProvider<Object>> repositories = const [],
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
+    ThemeMode themeMode = ThemeMode.light,
   }) {
     view
       ..physicalSize = screen.size
@@ -52,6 +53,8 @@ extension PumpApp on WidgetTester {
           value: connectivityCubit,
           child: MaterialApp(
             theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeMode,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: TextScaler.linear(textScale)),

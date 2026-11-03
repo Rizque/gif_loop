@@ -291,6 +291,31 @@ void main() {
       });
     }
 
+    for (final screen in TestScreen.values) {
+      testWidgets('search panel fits ${screen.name} with the keyboard open', (
+        tester,
+      ) async {
+        when(() => bloc.state).thenReturn(loaded);
+        for (var i = 0; i < 10; i++) {
+          await recents.add('recent search $i');
+        }
+        tester.view.viewInsets = const FakeViewPadding(bottom: 250);
+        addTearDown(tester.view.resetViewInsets);
+
+        await pumpFeed(tester, screen: screen, textScale: 1.5);
+        await tester.tap(find.byType(SearchBar));
+        await tester.pump();
+        expect(find.text(Strings.recentSearches), findsOneWidget);
+
+        await tester.enterText(find.byType(SearchBar), 'ca');
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.byType(SearchPanelRow), findsWidgets);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
     testWidgets('uses more columns in landscape', (tester) async {
       when(() => bloc.state).thenReturn(loaded);
 

@@ -64,6 +64,7 @@ void main() {
     WidgetTester tester, {
     TestScreen screen = TestScreen.phonePortrait,
     double textScale = 1,
+    ThemeMode themeMode = ThemeMode.light,
   }) async {
     final editor = RemixEditorCubit(
       gif: gif,
@@ -102,6 +103,7 @@ void main() {
       ],
       screen: screen,
       textScale: textScale,
+      themeMode: themeMode,
     );
     await tester.tap(find.text('open'));
     await settle(tester);
@@ -179,15 +181,44 @@ void main() {
     expect(find.byType(RemixEditorPage), findsNothing);
   });
 
+  testWidgets('meets the tap target guideline', (tester) async {
+    await stubFrames(tester, 6);
+    await pumpEditor(tester);
+
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  });
+
   group('layout', () {
     for (final screen in TestScreen.values) {
-      testWidgets('fits ${screen.name} at 1.5x text scale', (tester) async {
-        await stubFrames(tester, 6);
+      for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+        testWidgets(
+          'fits ${screen.name} in ${themeMode.name} at 1.5x text scale',
+          (tester) async {
+            await stubFrames(tester, 6);
 
-        await pumpEditor(tester, screen: screen, textScale: 1.5);
+            await pumpEditor(
+              tester,
+              screen: screen,
+              textScale: 1.5,
+              themeMode: themeMode,
+            );
 
-        expect(tester.takeException(), isNull);
-      });
+            expect(tester.takeException(), isNull);
+          },
+        );
+      }
     }
+
+    testWidgets('keeps working with the keyboard open', (tester) async {
+      await stubFrames(tester, 6);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.resetViewInsets);
+
+      await pumpEditor(tester, screen: TestScreen.phoneLandscape);
+      await tester.showKeyboard(find.byType(TextField).first);
+      await settle(tester);
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }

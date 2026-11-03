@@ -196,6 +196,14 @@ void main() {
     verify(coordinator.back).called(1);
   });
 
+  testWidgets('meets the tap target guideline', (tester) async {
+    await stubDecodedFrames(tester, 3);
+    await pumpDetails(tester, loadedWith(gif));
+    await tester.pump();
+
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  });
+
   group('layout', () {
     for (final screen in TestScreen.values) {
       testWidgets('fits ${screen.name} at 1.5x text scale', (tester) async {

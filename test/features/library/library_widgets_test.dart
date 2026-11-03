@@ -9,6 +9,7 @@ import 'package:gif_loop/core/errors/failure_presentation.dart';
 import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/features/details/widgets/favorite_button.dart';
+import 'package:gif_loop/features/gifs/widgets/gif_tile.dart';
 import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
 import 'package:gif_loop/features/library/cubit/remixes_cubit.dart';
 import 'package:gif_loop/features/library/domain/favorite_gif.dart';
@@ -95,6 +96,53 @@ void main() {
         find.textContaining(const NoConnectionFailure().message),
         findsOneWidget,
       );
+    });
+  });
+
+  group('LibraryPage layout', () {
+    final favorite = FavoriteGif(
+      gif: gif,
+      previewFile: File('missing_preview.webp'),
+      fullFile: File('missing_full.gif'),
+      addedAt: DateTime(2026),
+    );
+
+    for (final screen in TestScreen.values) {
+      for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+        testWidgets(
+          'fits ${screen.name} in ${themeMode.name} at 1.5x text scale',
+          (tester) async {
+            when(repository.favorites).thenAnswer((_) async => [favorite]);
+            await favorites.load();
+
+            await tester.pumpApp(
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: favorites),
+                  BlocProvider.value(value: remixes),
+                ],
+                child: const LibraryPage(),
+              ),
+              coordinator: coordinator,
+              screen: screen,
+              textScale: 1.5,
+              themeMode: themeMode,
+            );
+            await tester.pump();
+
+            expect(find.byType(GifTile), findsOneWidget);
+            expect(tester.takeException(), isNull);
+          },
+        );
+      }
+    }
+
+    testWidgets('meets the tap target guideline', (tester) async {
+      await favorites.load();
+
+      await pump(tester, const LibraryPage());
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     });
   });
 

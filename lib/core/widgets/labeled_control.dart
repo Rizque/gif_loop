@@ -16,14 +16,8 @@ class LabeledControl extends StatelessWidget {
       spacing: Spacing.xs,
       children: [
         Text(label, style: Theme.of(context).textTheme.labelLarge),
-        SizedBox(
-          width: double.infinity,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: child,
-          ),
-        ),
+        // Scrolls instead of shrinking so tap targets stay at least 48 px.
+        SingleChildScrollView(scrollDirection: Axis.horizontal, child: child),
       ],
     ),
   );

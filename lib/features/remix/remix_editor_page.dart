@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gif_loop/app/router/app_coordinator.dart';
+import 'package:gif_loop/core/connectivity/reconnect_listener.dart';
 import 'package:gif_loop/core/errors/failure.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/core/theme/spacing.dart';
@@ -83,6 +84,13 @@ class _RemixEditorPageState extends State<RemixEditorPage>
     );
   }
 
+  void _retryAfterReconnect() {
+    if (_source.status == StudioStatus.failure &&
+        (_source.failure?.isTransient ?? false)) {
+      _loadSource();
+    }
+  }
+
   Future<void> _confirmLeave() async {
     final discard = await showConfirmDialog(
       context,
@@ -144,31 +152,34 @@ class _RemixEditorPageState extends State<RemixEditorPage>
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) unawaited(_confirmLeave());
         },
-        child: Scaffold(
-          appBar: AppBar(title: const Text(Strings.remixEditorTitle)),
-          body: SafeArea(
-            top: false,
-            child: ListenableBuilder(
-              listenable: _source,
-              builder: (context, _) => switch (_source.status) {
-                StudioStatus.loading => Padding(
-                  padding: const EdgeInsets.all(Spacing.xl),
-                  child: Center(
-                    child: GifStudioControls(
-                      controller: _source,
-                      onRetry: _loadSource,
+        child: ReconnectListener(
+          onReconnected: _retryAfterReconnect,
+          child: Scaffold(
+            appBar: AppBar(title: const Text(Strings.remixEditorTitle)),
+            body: SafeArea(
+              top: false,
+              child: ListenableBuilder(
+                listenable: _source,
+                builder: (context, _) => switch (_source.status) {
+                  StudioStatus.loading => Padding(
+                    padding: const EdgeInsets.all(Spacing.xl),
+                    child: Center(
+                      child: GifStudioControls(
+                        controller: _source,
+                        onRetry: _loadSource,
+                      ),
                     ),
                   ),
-                ),
-                StudioStatus.failure => ErrorView(
-                  failure: _source.failure ?? const UnknownFailure(),
-                  onRetry: _loadSource,
-                ),
-                StudioStatus.ready => _EditorLayout(
-                  source: _source,
-                  preview: _preview,
-                ),
-              },
+                  StudioStatus.failure => ErrorView(
+                    failure: _source.failure ?? const UnknownFailure(),
+                    onRetry: _loadSource,
+                  ),
+                  StudioStatus.ready => _EditorLayout(
+                    source: _source,
+                    preview: _preview,
+                  ),
+                },
+              ),
             ),
           ),
         ),
