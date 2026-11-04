@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -5,10 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gif_loop/core/errors/failure.dart';
 import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame.dart';
+import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 import 'package:gif_loop/features/studio/engine/playback_engine.dart';
 import 'package:gif_loop/features/studio/gif_studio_controller.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/fixture.dart';
 import '../../helpers/mocks.dart';
 
 const _frameDuration = Duration(milliseconds: 100);
@@ -119,6 +122,62 @@ void main() {
     expect(controller.hasPlayback, isFalse);
     expect(controller.isPlaying, isFalse);
     controller.dispose();
+  });
+
+  group('with a really decoded single-frame GIF', () {
+    late Directory directory;
+
+    setUp(() {
+      directory = Directory.systemTemp.createTempSync('studio_controller');
+    });
+
+    tearDown(() => directory.deleteSync(recursive: true));
+
+    Future<GifStudioController> loadFixture(WidgetTester tester) async {
+      final file = File('${directory.path}/still.gif')
+        ..writeAsBytesSync(singleFrameGif());
+      final controller = GifStudioController(
+        vsync: tester,
+        loader: GifFrameLoader(MockCacheManager()),
+      );
+      await tester.runAsync(() => controller.load(file: file));
+      return controller;
+    }
+
+    testWidgets('shows the frame and never starts the ticker', (tester) async {
+      final controller = await loadFixture(tester);
+
+      expect(controller.status, StudioStatus.ready);
+      expect(controller.frameCount, 1);
+      expect(controller.hasPlayback, isFalse);
+      expect(controller.isPlaying, isFalse);
+      expect(tester.binding.transientCallbackCount, 0);
+      expect(controller.currentImage.width, 20);
+      controller.dispose();
+    });
+
+    testWidgets('ignores playback commands', (tester) async {
+      final controller = await loadFixture(tester)
+        ..play()
+        ..togglePlay()
+        ..stepForward()
+        ..stepBackward()
+        ..seek(5);
+
+      expect(controller.isPlaying, isFalse);
+      expect(tester.binding.transientCallbackCount, 0);
+      expect(controller.frameIndex.value, 0);
+      controller.dispose();
+    });
+
+    testWidgets('disposes the frame exactly once', (tester) async {
+      final controller = await loadFixture(tester);
+      final image = controller.currentImage;
+
+      controller.dispose();
+
+      expect(image.debugDisposed, isTrue);
+    });
   });
 
   testWidgets('exposes the failure when loading fails', (tester) async {

@@ -46,8 +46,11 @@ abstract final class Strings {
   static String trimRange(int first, int last) => 'Frames $first–$last';
   static const String topText = 'Top text';
   static const String bottomText = 'Bottom text';
+  static const String singleFrameRemixHint =
+      'This GIF is a single still frame, so you can only add captions.';
   static String remixInfo(int width, int height, int frames, String seconds) =>
-      '$width×$height · $frames frames · $seconds s';
+      '$width×$height · $frames ${frames == 1 ? 'frame' : 'frames'} · '
+      '$seconds s';
   static const String exportGif = 'Export GIF';
   static const String frameLimitExceeded =
       'Shorten the selection (max 150 frames)';

@@ -8,6 +8,7 @@ import 'package:gif_loop/features/remix/engine/remix_plan.dart';
 import 'package:gif_loop/features/remix/export/remix_exporter.dart';
 import 'package:image/image.dart' as img;
 
+import '../../helpers/fixture.dart';
 import '../../helpers/test_gif.dart';
 
 void main() {
@@ -45,6 +46,26 @@ void main() {
       )!;
       expect(decoded.frames, hasLength(3));
       expect(progress.last, 1);
+    });
+
+    test('exports a captioned single-frame GIF', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+
+      final result = await exporter.export(
+        sourceBytes: singleFrameGif(),
+        plan: const RemixPlan([RemixFrame(0, Duration(milliseconds: 100))]),
+        size: (width: 20, height: 10),
+        topText: 'Top',
+        bottomText: '',
+        onProgress: (_) {},
+        cancellation: CancellationToken(),
+      );
+
+      final decoded = img.GifDecoder().decode(
+        (result as Success<Uint8List>).value,
+      )!;
+      expect(decoded.frames, hasLength(1));
+      expect(decoded.width, 20);
     });
 
     test('a cancelled export returns without output', () async {

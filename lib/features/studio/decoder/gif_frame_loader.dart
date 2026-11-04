@@ -6,6 +6,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:gif_loop/core/errors/failure.dart';
 import 'package:gif_loop/core/errors/failure_mapper.dart';
 import 'package:gif_loop/core/errors/result.dart';
+import 'package:gif_loop/core/media/image_bytes.dart';
 import 'package:gif_loop/core/network/cancellation_token.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame.dart';
 import 'package:gif_loop/features/studio/decoder/memory_budget.dart';
@@ -53,10 +54,15 @@ class GifFrameLoader {
     CancellationToken cancellation,
     ValueChanged<double> onProgress,
   ) async {
+    if (!isSupportedImage(bytes)) return const Err(DecodingFailure());
     final frames = <GifFrame>[];
+    ui.ImmutableBuffer? buffer;
+    ui.ImageDescriptor? descriptor;
     ui.Codec? codec;
     try {
-      codec = await _instantiateCodec(bytes);
+      buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      descriptor = await ui.ImageDescriptor.encoded(buffer);
+      codec = await _instantiateCodec(descriptor);
       for (var i = 0; i < codec.frameCount; i++) {
         if (cancellation.isCancelled) {
           _dispose(frames);
@@ -66,33 +72,31 @@ class GifFrameLoader {
         frames.add(GifFrame(frame.image, frame.duration));
         onProgress((i + 1) / codec.frameCount);
       }
-      return Success(frames);
+      return frames.isEmpty ? const Err(DecodingFailure()) : Success(frames);
     } on Exception {
       _dispose(frames);
       return const Err(DecodingFailure());
     } finally {
+      // The descriptor must outlive every getNextFrame call. A single-frame
+      // codec decodes from it lazily, and disposing it early clears its data,
+      // which crashes the engine with a native null dereference on Android.
       codec?.dispose();
+      descriptor?.dispose();
+      buffer?.dispose();
     }
   }
 
-  Future<ui.Codec> _instantiateCodec(Uint8List bytes) async {
-    final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
-    final descriptor = await ui.ImageDescriptor.encoded(buffer);
-    buffer.dispose();
-    try {
-      final codec = await descriptor.instantiateCodec();
-      final targetWidth = targetWidthWithinBudget(
-        width: descriptor.width,
-        height: descriptor.height,
-        frameCount: codec.frameCount,
-        budgetBytes: memoryBudgetBytes,
-      );
-      if (targetWidth == null) return codec;
-      codec.dispose();
-      return await descriptor.instantiateCodec(targetWidth: targetWidth);
-    } finally {
-      descriptor.dispose();
-    }
+  Future<ui.Codec> _instantiateCodec(ui.ImageDescriptor descriptor) async {
+    final codec = await descriptor.instantiateCodec();
+    final targetWidth = targetWidthWithinBudget(
+      width: descriptor.width,
+      height: descriptor.height,
+      frameCount: codec.frameCount,
+      budgetBytes: memoryBudgetBytes,
+    );
+    if (targetWidth == null) return codec;
+    codec.dispose();
+    return await descriptor.instantiateCodec(targetWidth: targetWidth);
   }
 
   static void _dispose(List<GifFrame> frames) {

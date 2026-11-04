@@ -12,6 +12,7 @@ import 'package:gif_loop/features/remix/remix_editor_page.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
 import 'package:gif_loop/features/studio/engine/studio_settings.dart';
+import 'package:gif_loop/features/studio/widgets/playback_settings_controls.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/gif_factory.dart';
@@ -122,6 +123,27 @@ void main() {
     expect(find.text(Strings.trimRange(1, 12)), findsOneWidget);
     expect(find.text(Strings.topText), findsOneWidget);
     expect(find.text(Strings.bottomText), findsOneWidget);
+  });
+
+  testWidgets('a single-frame GIF offers captions and export only', (
+    tester,
+  ) async {
+    await stubFrames(tester, 1);
+
+    await pumpEditor(tester);
+
+    expect(find.text(Strings.singleFrameRemixHint), findsOneWidget);
+    expect(find.text(Strings.trim), findsNothing);
+    expect(find.byType(PlaybackSettingsControls), findsNothing);
+    expect(find.byTooltip(Strings.play), findsNothing);
+    expect(find.byTooltip(Strings.pause), findsNothing);
+    expect(find.text(Strings.topText), findsOneWidget);
+    expect(find.text(Strings.bottomText), findsOneWidget);
+    final export = find.ancestor(
+      of: find.text(Strings.exportGif),
+      matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+    );
+    expect(tester.widget<ButtonStyleButton>(export).onPressed, isNotNull);
   });
 
   group('preview and reduce motion', () {

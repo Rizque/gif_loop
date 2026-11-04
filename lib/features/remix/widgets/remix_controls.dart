@@ -26,19 +26,25 @@ class RemixControls extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: Spacing.l,
         children: [
-          if (sourceFrameCount > 1)
+          if (sourceFrameCount > 1) ...[
             _TrimControl(
               sourceFrameCount: sourceFrameCount,
               start: state.settings.trimStart,
               end: state.settings.trimEnd,
               preview: preview,
             ),
-          PlaybackSettingsControls(
-            speed: state.settings.speed,
-            loopMode: state.settings.loopMode,
-            onSpeedChanged: cubit.speedChanged,
-            onLoopModeChanged: cubit.loopModeChanged,
-          ),
+            PlaybackSettingsControls(
+              speed: state.settings.speed,
+              loopMode: state.settings.loopMode,
+              onSpeedChanged: cubit.speedChanged,
+              onLoopModeChanged: cubit.loopModeChanged,
+            ),
+          ] else
+            Text(
+              Strings.singleFrameRemixHint,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           const RemixCaptionFields(),
           _OutputInfo(state: state),
           FilledButton.icon(

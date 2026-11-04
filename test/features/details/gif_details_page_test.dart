@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:gif_loop/core/errors/failure.dart';
 import 'package:gif_loop/core/errors/failure_presentation.dart';
 import 'package:gif_loop/core/errors/result.dart';
 import 'package:gif_loop/core/formatting/byte_size.dart';
+import 'package:gif_loop/core/network/cancellation_token.dart';
 import 'package:gif_loop/core/strings.dart';
 import 'package:gif_loop/features/details/cubit/gif_details_cubit.dart';
 import 'package:gif_loop/features/details/cubit/gif_details_state.dart';
@@ -14,8 +17,10 @@ import 'package:gif_loop/features/gifs/domain/gif.dart';
 import 'package:gif_loop/features/library/cubit/favorites_cubit.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame.dart';
 import 'package:gif_loop/features/studio/decoder/gif_frame_loader.dart';
+import 'package:gif_loop/features/studio/widgets/playback_settings_controls.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/fixture.dart';
 import '../../helpers/gif_factory.dart';
 import '../../helpers/mocks.dart';
 import '../../helpers/pump_app.dart';
@@ -167,6 +172,36 @@ void main() {
 
     expect(find.byTooltip(Strings.play), findsNothing);
     expect(find.byTooltip(Strings.pause), findsNothing);
+  });
+
+  testWidgets('renders a really decoded single-frame GIF without controls', (
+    tester,
+  ) async {
+    final directory = Directory.systemTemp.createTempSync('details_page');
+    addTearDown(() => directory.deleteSync(recursive: true));
+    final file = File('${directory.path}/still.gif')
+      ..writeAsBytesSync(singleFrameGif());
+    final decoded = await tester.runAsync(
+      () => GifFrameLoader(
+        MockCacheManager(),
+      ).load(file: file, cancellation: CancellationToken(), onProgress: (_) {}),
+    );
+    stubFrames(decoded!);
+
+    await pumpDetails(tester, loadedWith(gif));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final frame = tester.widget<RawImage>(find.byType(RawImage));
+    expect(frame.image?.width, 20);
+    expect(frame.image?.height, 10);
+    expect(find.byTooltip(Strings.play), findsNothing);
+    expect(find.byTooltip(Strings.pause), findsNothing);
+    expect(find.byTooltip(Strings.nextFrame), findsNothing);
+    expect(find.byTooltip(Strings.previousFrame), findsNothing);
+    expect(find.byType(Slider), findsNothing);
+    expect(find.byType(PlaybackSettingsControls), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('shows a Studio error with Retry', (tester) async {
