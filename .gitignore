@@ -52,3 +52,7 @@ app.*.map.json
 .env.*
 !.env.example
 lib/core/config/env.g.dart
+
+# Video recordings
+*.mp4
+*.mov

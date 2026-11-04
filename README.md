@@ -29,6 +29,8 @@ Engine • revision 89c39edfdf • 2026-10-27 19:51:20.000Z
 Tools • Dart 3.13.7 • DevTools 2.60.0
 ```
 
+Requires Flutter 3.47+ (Dart 3.13). Older SDKs won't compile the code, so run `flutter upgrade` first.
+
 ## Getting started
 
 1. Get an API key at <https://developers.giphy.com/dashboard/>.
@@ -56,7 +58,7 @@ Tests: `flutter test`
 | Pagination                                | Next page loads near the end of the grid, duplicates removed                                    |
 | Portrait & landscape                      | Adaptive layouts on every screen. Phones: bottom bar hides on scroll. Tablets: navigation rail. |
 | Error handling                            | Sealed `Failure` types (offline, timeout, rate limit, server…) with readable messages           |
-| Unit tests                                | 251 tests: blocs, repositories, parsing, playback, export, widgets                              |
+| Unit tests                                | 334 tests: blocs, repositories, parsing, playback, export, widgets                              |
 | Responsive, platform guidelines           | Material 3 on Android, Cupertino widgets on iOS, light & dark theme                             |
 | 2+ views with GIPHY data                  | Explore (trending + search), Detail                                                             |
 | Results in a grid                         | Masonry grid that keeps each GIF's aspect ratio                                                 |
