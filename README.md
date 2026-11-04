@@ -11,6 +11,8 @@ A Flutter app for iOS and Android for finding, playing and remixing GIFs from GI
   <img src="docs/screenshots/library.jpg" width="200" alt="Library">
 </p>
 
+https://github.com/user-attachments/assets/2f7bc8e6-6840-43e3-ab66-7c9d0aae668b
+
 ## Features
 
 - **Explore:** trending GIFs and auto search with suggestions and recent searches, in an endless masonry grid.
